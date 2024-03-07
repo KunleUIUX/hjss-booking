@@ -4,6 +4,7 @@ import org.hjss.booking.report.CoachReportData;
 import org.hjss.booking.report.LearnerReportData;
 import org.hjss.util.NameGenerator;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class BookingManagementSystem {
@@ -418,15 +419,28 @@ public class BookingManagementSystem {
     }
 
 
-    // Generate monthly learner report
+    // Generate monthly learner report for a specified month
     private void generateMonthlyLearnerReport() {
+        Scanner scanner = new Scanner(System.in);
+
         System.out.println("\n=== Monthly Learner Report ===");
+
+        // Prompt user to input a month number
+        System.out.print("Enter the month number (e.g., 03 for March): ");
+        int monthNumber = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        // Validate the month number (assuming valid range is 1-12)
+        if (monthNumber < 1 || monthNumber > 12) {
+            System.out.println("Invalid month number. Please enter a valid month number.");
+            return;
+        }
 
         // Create a map to store learner information
         Map<UUID, LearnerReportData> learnerReportMap = new HashMap<>();
 
-        // Iterate through bookings to gather learner information
-        for (Booking booking : bookings) {
+        // Iterate through bookings made in the specified month
+        for (Booking booking : getBookingsInMonth(monthNumber)) {
             Learner learner = booking.getLearner();
 
             // If learner is not in the report map, add them with initial data
@@ -454,25 +468,54 @@ public class BookingManagementSystem {
             System.out.println("Booked Lessons: " + learnerReportData.getBookedCount());
             System.out.println("Cancelled Lessons: " + learnerReportData.getCancelledCount());
             System.out.println("Attended Lessons: " + learnerReportData.getAttendedCount());
-            System.out.println("Detailed Lesson Information:");
+            System.out.println("Detailed Lesson Information for the month " + monthNumber + ":");
 
             // Print detailed lesson information
             List<Lesson> bookedLessons = learnerReportData.getBookedLessons();
             for (Lesson lesson : bookedLessons) {
-                System.out.println("- " + lesson.toString());
+                // Check if the lesson is in the specified month
+                if (lessonIsInMonth(lesson, monthNumber)) {
+                    System.out.println("- " + lessonDetailsToString(lesson));
+                }
             }
         }
     }
 
+    // Check if a lesson is in the specified month
+    private boolean lessonIsInMonth(Lesson lesson, int monthNumber) {
+        return lesson.getDateTime().getMonthValue() == monthNumber;
+    }
+
+    // Generate detailed string representation of lesson details
+    private String lessonDetailsToString(Lesson lesson) {
+        return "Time: " + lesson.getTimeSlot() +
+                ", Grade Level: " + lesson.getGradeLevel() +
+                ", Coach: " + lesson.getCoach().getName();
+    }
+
+
     // Generate monthly coach report
     private void generateMonthlyCoachReport() {
+        Scanner scanner = new Scanner(System.in);
+
         System.out.println("\n=== Monthly Coach Report ===");
+
+        // Prompt user to input a month number
+        System.out.print("Enter the month number (e.g., 03 for March): ");
+        int monthNumber = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        // Validate the month number (assuming valid range is 1-12)
+        if (monthNumber < 1 || monthNumber > 12) {
+            System.out.println("Invalid month number. Please enter a valid month number.");
+            return;
+        }
 
         // Create a map to store coach information
         Map<String, CoachReportData> coachReportMap = new HashMap<>();
 
-        // Iterate through bookings to gather coach information and ratings
-        for (Booking booking : bookings) {
+        // Iterate through bookings made in the specified month
+        for (Booking booking : getBookingsInMonth(monthNumber)) {
             Coach coach = booking.getLesson().getCoach();
 
             // If coach is not in the report map, add them with initial data
@@ -488,8 +531,21 @@ public class BookingManagementSystem {
             CoachReportData coachReportData = entry.getValue();
 
             System.out.println("\nCoach: " + coachName);
-            System.out.println("Average Rating: " + coachReportData.getAverageRating());
+            System.out.println("Average Rating for the month " + monthNumber + ": " + coachReportData.getAverageRating());
         }
     }
 
+    // Get bookings made in the specified month
+    private List<Booking> getBookingsInMonth(int monthNumber) {
+        List<Booking> bookingsInMonth = new ArrayList<>();
+
+        for (Booking booking : bookings) {
+            LocalDateTime bookingTimestamp = booking.getTimestamp();
+            if (bookingTimestamp.getMonthValue() == monthNumber) {
+                bookingsInMonth.add(booking);
+            }
+        }
+
+        return bookingsInMonth;
+    }
 }

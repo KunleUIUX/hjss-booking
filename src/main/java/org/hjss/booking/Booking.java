@@ -1,5 +1,6 @@
 package org.hjss.booking;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Booking {
@@ -11,6 +12,7 @@ public class Booking {
     private String status; // "booked", "attended", "cancelled"
     private String review;
     private String bookingId;
+    private LocalDateTime timestamp;
 
     public Booking(UUID uuid, Learner learner, Lesson lesson, String status, String review, String bookingId, int rating) {
         this.uuid = uuid;
@@ -20,6 +22,7 @@ public class Booking {
         this.review = review;
         this.bookingId = bookingId;
         this.rating = rating;
+        this.timestamp = timestamp;
     }
 
     public Booking() {
@@ -87,4 +90,11 @@ public class Booking {
     }
 
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }
