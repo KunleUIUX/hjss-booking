@@ -133,7 +133,7 @@ public class BookingManagementSystem {
                     bookSwimmingLesson();
                     break;
                 case 2:
-//                    changeCancelBooking();
+                    changeCancelBooking();
                     break;
                 case 3:
 //                    attendSwimmingLesson();
@@ -231,4 +231,77 @@ public class BookingManagementSystem {
         return learner.getGradeLevel() >= lesson.getGradeLevel() && learner.getGradeLevel() <= lesson.getGradeLevel() + 1;
     }
 
+
+    private void changeCancelBooking() {
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter learner name: ");
+        String learnerName = scanner.nextLine();
+        Learner learner = findLearnerByName(learnerName);
+
+        if (learner != null) {
+            System.out.print("Enter lesson day: ");
+            String day = scanner.nextLine();
+            System.out.print("Enter lesson time slot: ");
+            String timeSlot = scanner.nextLine();
+            Lesson oldLesson = findLessonByDayAndTime(day, timeSlot);
+
+            if (oldLesson != null) {
+                // Find the booking associated with the learner and old lesson
+                Booking bookingToRemove = findBookingByLearnerAndLesson(learner, oldLesson);
+
+                if (bookingToRemove != null) {
+                    // Prompt the user to select a new lesson
+                    System.out.print("Enter new lesson day: ");
+                    String newDay = scanner.nextLine();
+                    System.out.print("Enter new lesson time slot: ");
+                    String newTimeSlot = scanner.nextLine();
+                    Lesson newLesson = findLessonByDayAndTime(newDay, newTimeSlot);
+
+                    if (newLesson != null) {
+                        // Check if the new lesson is eligible and has available space
+                        if (isBookingEligible(learner, newLesson) && newLesson.getCurrentCapacity() < newLesson.getMaxCapacity()) {
+                            // Remove the old booking
+                            bookings.remove(bookingToRemove);
+                            // Release one place from the previously booked lesson
+                            oldLesson.setCurrentCapacity(oldLesson.getCurrentCapacity() - 1);
+
+                            // Create a new booking for the new lesson
+                            Booking newBooking = new Booking();
+                            newBooking.setLearner(learner);
+                            newBooking.setLesson(newLesson);
+                            newBooking.setStatus("booked");
+                            // Add the new booking to the system
+                            bookings.add(newBooking);
+                            // Update the current capacity of the new lesson
+                            newLesson.setCurrentCapacity(newLesson.getCurrentCapacity() + 1);
+
+                            System.out.println("Booking change successful!");
+                        } else {
+                            System.out.println("The new lesson is not eligible or it is already full. Booking change failed.");
+                        }
+                    } else {
+                        System.out.println("New lesson not found for the specified day and time slot.");
+                    }
+                } else {
+                    System.out.println("No booking found for the specified learner and old lesson. Booking change failed.");
+                }
+            } else {
+                System.out.println("Old lesson not found for the specified day and time slot.");
+            }
+        } else {
+            System.out.println("Learner not found for the specified name.");
+        }
+
+    }
+
+    private Booking findBookingByLearnerAndLesson(Learner learner, Lesson lesson) {
+        for (Booking booking : bookings) {
+            if (booking.getLearner().equals(learner) && booking.getLesson().equals(lesson)) {
+                return booking;
+            }
+        }
+        return null;
+    }
 }
