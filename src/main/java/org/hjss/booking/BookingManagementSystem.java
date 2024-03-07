@@ -155,6 +155,31 @@ public class BookingManagementSystem {
 
     private void registerNewLearner() {
 
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("=== Register a New Learner ===");
+
+        // Gather information about the new learner
+        System.out.print("Enter learner name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter learner gender: ");
+        String gender = scanner.nextLine();
+        System.out.print("Enter learner age: ");
+        int age = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+        System.out.print("Enter emergency contact phone number: ");
+        String emergencyContactNumber = scanner.nextLine();
+        System.out.print("Enter learner grade level: ");
+        int gradeLevel = scanner.nextInt();
+
+        // Create a new learner with a UUID
+        Learner newLearner = new Learner(UUID.randomUUID(), name, gender, age, emergencyContactNumber, gradeLevel);
+
+        // Add the new learner to the system
+        registerNewLearner(newLearner);
+
+        System.out.println("New learner registered successfully!");
+
     }
 
 
@@ -383,4 +408,7 @@ public class BookingManagementSystem {
             System.out.println("Congratulations! Your grade level has been updated to " + lessonGrade);
         }
     }
+
+
+
 }

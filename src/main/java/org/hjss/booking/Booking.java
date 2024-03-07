@@ -1,12 +1,39 @@
 package org.hjss.booking;
 
+import java.util.UUID;
+
 public class Booking {
+
+    private UUID uuid;
 
     private Learner learner;
     private Lesson lesson;
     private String status; // "booked", "attended", "cancelled"
     private String review;
     private String bookingId;
+
+    public Booking(UUID uuid, Learner learner, Lesson lesson, String status, String review, String bookingId, int rating) {
+        this.uuid = uuid;
+        this.learner = learner;
+        this.lesson = lesson;
+        this.status = status;
+        this.review = review;
+        this.bookingId = bookingId;
+        this.rating = rating;
+    }
+
+    public Booking() {
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
 
 
     public String getBookingId() {

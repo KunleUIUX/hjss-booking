@@ -1,7 +1,10 @@
 package org.hjss.booking;
 
+import java.util.UUID;
+
 public class Lesson {
 
+    private UUID uuid;
 
     private String lessonId;
     private String day;
