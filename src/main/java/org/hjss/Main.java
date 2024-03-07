@@ -1,13 +1,13 @@
 package org.hjss;
 
-import org.hjss.booking.BookingManagementSystem;
+import org.hjss.booking.BookingManagementService;
 
 public class Main {
     public static void main(String[] args) {
 
-        BookingManagementSystem bookingSystem = new BookingManagementSystem();
+        BookingManagementService bookingSystem = new BookingManagementService();
         bookingSystem.generateSampleData();
-
-
+        bookingSystem.runCommandInterface();
     }
+
 }

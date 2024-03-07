@@ -2,11 +2,31 @@ package org.hjss.booking;
 
 public class Lesson {
 
+
+    private String lessonId;
     private String day;
     private String timeSlot;
     private int maxCapacity;
     private int currentCapacity;
     private Coach coach;
+    private int gradeLevel;
+
+
+
+    public String getLessonId() {
+        return lessonId;
+    }
+
+    public void setLessonId(String lessonId) {
+        this.lessonId = lessonId;
+    }
+    public int getGradeLevel() {
+        return gradeLevel;
+    }
+
+    public void setGradeLevel(int gradeLevel) {
+        this.gradeLevel = gradeLevel;
+    }
 
     public String getDay() {
         return day;
