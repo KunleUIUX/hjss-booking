@@ -2,10 +2,7 @@ package org.hjss.booking;
 
 import org.hjss.util.NameGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class BookingManagementSystem {
 
@@ -111,6 +108,45 @@ public class BookingManagementSystem {
             }
         }
         return false;
+    }
+
+    public void runCommandInterface() {
+        Scanner scanner = new Scanner(System.in);
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("\nMain Menu:");
+            System.out.println("1. Book a swimming lesson");
+            System.out.println("2. Change/Cancel a booking");
+            System.out.println("3. Attend a swimming lesson");
+            System.out.println("4. Monthly learner report");
+            System.out.println("5. Monthly coach report");
+            System.out.println("6. Register a new learner");
+
+            System.out.println("7. Exit");
+
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+//                    bookSwimmingLesson();
+                    break;
+                case 2:
+//                    changeCancelBooking();
+                    break;
+                case 3:
+//                    attendSwimmingLesson();
+                    break;
+                case 7:
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+
+        System.out.println("Exiting the program. Thank you!");
     }
 
 }

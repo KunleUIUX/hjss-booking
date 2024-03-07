@@ -265,7 +265,11 @@ public class BookingManagementService {
             System.out.println("1. Book a swimming lesson");
             System.out.println("2. Change/Cancel a booking");
             System.out.println("3. Attend a swimming lesson");
-            System.out.println("4. Exit");
+            System.out.println("4. Monthly learner report");
+            System.out.println("5. Monthly coach report");
+            System.out.println("6. Register a new learner");
+
+            System.out.println("7. Exit");
 
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
@@ -280,7 +284,7 @@ public class BookingManagementService {
                 case 3:
                     attendSwimmingLesson();
                     break;
-                case 4:
+                case 7:
                     exit = true;
                     break;
                 default:
