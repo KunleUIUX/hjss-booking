@@ -138,6 +138,9 @@ public class BookingManagementSystem {
                 case 3:
                     attendSwimmingLesson();
                     break;
+                case 6:
+                    registerNewLearner();
+                    break;
                 case 7:
                     exit = true;
                     break;
@@ -149,7 +152,13 @@ public class BookingManagementSystem {
         System.out.println("Exiting the program. Thank you!");
     }
 
-    private void bookSwimmingLesson() {
+
+    private void registerNewLearner() {
+
+    }
+
+
+        private void bookSwimmingLesson() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter learner name: ");
@@ -351,6 +360,9 @@ public class BookingManagementSystem {
                 bookingToAttend.setReview(review);
                 bookingToAttend.setRating(rating);
 
+                // Check for grade level update
+                updateGradeLevelAfterAttending(learner, lesson);
+
                 System.out.println("Lesson attended successfully. Rating: " + rating);
             } else {
                 System.out.println("This lesson has already been attended or cancelled.");
@@ -360,4 +372,15 @@ public class BookingManagementSystem {
         }
     }
 
+    private void updateGradeLevelAfterAttending(Learner learner, Lesson lesson) {
+        // Check if the learner's grade level is lower than the lesson's grade level
+        int lessonGrade = lesson.getGradeLevel();
+        int learnerGrade = learner.getGradeLevel();
+
+        if (learnerGrade < lessonGrade) {
+            // Update the learner's grade level
+            learner.setGradeLevel(lessonGrade);
+            System.out.println("Congratulations! Your grade level has been updated to " + lessonGrade);
+        }
+    }
 }
