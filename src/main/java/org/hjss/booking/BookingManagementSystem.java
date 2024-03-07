@@ -130,7 +130,7 @@ public class BookingManagementSystem {
 
             switch (choice) {
                 case 1:
-//                    bookSwimmingLesson();
+                    bookSwimmingLesson();
                     break;
                 case 2:
 //                    changeCancelBooking();
@@ -147,6 +147,88 @@ public class BookingManagementSystem {
         }
 
         System.out.println("Exiting the program. Thank you!");
+    }
+
+    private void bookSwimmingLesson() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter learner name: ");
+        String learnerName = scanner.nextLine();
+        Learner learner = findLearnerByName(learnerName);
+
+        if (learner != null) {
+            System.out.print("Enter lesson day: ");
+            String day = scanner.nextLine();
+            System.out.print("Enter lesson time slot: ");
+            String timeSlot = scanner.nextLine();
+            Lesson lesson = findLessonByDayAndTime(day, timeSlot);
+
+            if (lesson != null) {
+                // Check if the lesson is eligible and has available space
+                if (isBookingEligible(learner, lesson) && lesson.getCurrentCapacity() < lesson.getMaxCapacity()) {
+                    // Check if the learner has already booked this lesson
+                    if (!isDuplicateBooking(learner, lesson)) {
+
+                        // Create a new booking
+
+                        Booking newBooking = new Booking();
+                        newBooking.setLearner(learner);
+                        newBooking.setLesson(lesson);
+                        newBooking.setStatus("booked");
+                        // Add the new booking to the system
+                        bookings.add(newBooking);
+                        // Update the current capacity of the lesson
+                        lesson.setCurrentCapacity(lesson.getCurrentCapacity() + 1);
+
+                        System.out.println("Booking successful!");
+                    }
+                    else {
+                        System.out.println("You have already booked this lesson. Duplicate booking is not allowed.");
+                    }
+                } else {
+                    System.out.println("The lesson is not eligible or it is already full. Booking failed.");
+                }
+            } else {
+                System.out.println("Lesson not found for the specified day and time slot.");
+            }
+        } else {
+            System.out.println("Learner not found for the specified name.");
+        }
+    }
+
+    private boolean isDuplicateBooking(Learner learner, Lesson lesson) {
+        for (Booking booking : bookings) {
+            if (booking.getLearner().equals(learner) && booking.getLesson().equals(lesson) && booking.getStatus().equals("booked")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private Learner findLearnerByName(String learnerName) {
+        for (Learner learner : learners) {
+            if (learner.getName().equalsIgnoreCase(learnerName)) {
+                return learner;
+            }
+        }
+        return null;
+    }
+
+    private Lesson findLessonByDayAndTime(String day, String timeSlot) {
+        for (Lesson lesson : lessons) {
+            if (lesson.getDay().equalsIgnoreCase(day) && lesson.getTimeSlot().equalsIgnoreCase(timeSlot)) {
+                return lesson;
+            }
+        }
+        return null;
+    }
+
+    private boolean isBookingEligible(Learner learner, Lesson lesson) {
+        // Implement eligibility criteria (e.g., grade level restrictions)
+        // Return true if the learner is eligible, false otherwise
+        // You can add more conditions based on your specific requirements
+        return learner.getGradeLevel() >= lesson.getGradeLevel() && learner.getGradeLevel() <= lesson.getGradeLevel() + 1;
     }
 
 }
