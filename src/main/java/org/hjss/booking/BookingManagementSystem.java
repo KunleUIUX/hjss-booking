@@ -19,7 +19,6 @@ public class BookingManagementSystem {
         coaches = new ArrayList<>();
         lessons = new ArrayList<>();
         bookings = new ArrayList<>();
-        generateSampleData();
     }
 
     public void generateSampleData() {
@@ -42,7 +41,7 @@ public class BookingManagementSystem {
             learner.setAge(new Random().nextInt(8) + 4); // Random age between 4 and 11
             learner.setEmergencyContact("123-456-789" + i);
             learner.setGradeLevel(new Random().nextInt(5) + 1); // Random grade level between 1 and 5
-//            registerNewLearner(learner);
+            registerNewLearner(learner);
         }
 
         // Generate lessons for 4 weeks (44 lessons) following the specified schedule
@@ -78,6 +77,40 @@ public class BookingManagementSystem {
         return coaches.get(new Random().nextInt(coaches.size()));
     }
 
-    //more methods
+
+    // Function 6: Register a new learner
+    public void registerNewLearner(Learner newLearner) {
+        // Implement learner registration logic
+
+// Check if the learner meets the age requirement
+        if (isLearnerAgeValid(newLearner.getAge())) {
+            // Check if the learner is not already registered
+            if (!isLearnerAlreadyRegistered(newLearner.getName())) {
+                // Add the new learner to the system
+                learners.add(newLearner);
+                System.out.println("New learner registered successfully.");
+            } else {
+                System.out.println("This learner is already registered in the system.");
+            }
+        } else {
+            System.out.println("Invalid learner age. The learner must be between 4 and 11 years old.");
+        }
+    }
+
+    private boolean isLearnerAgeValid(int age) {
+        // Check if the learner's age is between 4 and 11 (inclusive)
+        return age >= 4 && age <= 11;
+    }
+
+
+    private boolean isLearnerAlreadyRegistered(String learnerName) {
+        // Check if the learner is already registered in the system
+        for (Learner existingLearner : learners) {
+            if (existingLearner.getName().equalsIgnoreCase(learnerName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
