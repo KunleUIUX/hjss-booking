@@ -136,7 +136,7 @@ public class BookingManagementSystem {
                     changeCancelBooking();
                     break;
                 case 3:
-//                    attendSwimmingLesson();
+                    attendSwimmingLesson();
                     break;
                 case 7:
                     exit = true;
@@ -304,4 +304,60 @@ public class BookingManagementSystem {
         }
         return null;
     }
+
+    public void attendSwimmingLesson() {
+        // Implementation for attending a swimming lesson and providing a review
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter learner name: ");
+        String learnerName = scanner.nextLine();
+        Learner learner = findLearnerByName(learnerName);
+
+        if (learner != null) {
+            System.out.print("Enter lesson day: ");
+            String day = scanner.nextLine();
+            System.out.print("Enter lesson time slot: ");
+            String timeSlot = scanner.nextLine();
+            Lesson lesson = findLessonByDayAndTime(day, timeSlot);
+
+            if (lesson != null) {
+                System.out.print("Enter your review: ");
+                String review = scanner.nextLine();
+                System.out.print("Enter your rating (1-5): ");
+                int rating = scanner.nextInt();
+
+                attendLesson(learner, lesson, review, rating);
+            } else {
+                System.out.println("Lesson not found for the specified day and time slot.");
+            }
+        } else {
+            System.out.println("Learner not found for the specified name.");
+        }
+    }
+
+    // Function 3: Attend a swimming lesson
+    public void attendLesson(Learner learner, Lesson lesson, String review, int rating) {
+        // Implement attending lesson logic
+
+        // Find the booking associated with the learner and lesson
+        Booking bookingToAttend = findBookingByLearnerAndLesson(learner, lesson);
+
+        if (bookingToAttend != null) {
+            // Check the status of the booking
+            if ("booked".equals(bookingToAttend.getStatus())) {
+                // Mark the lesson as attended
+                bookingToAttend.setStatus("attended");
+                // Set the review and rating for the attended lesson
+                bookingToAttend.setReview(review);
+                bookingToAttend.setRating(rating);
+
+                System.out.println("Lesson attended successfully. Rating: " + rating);
+            } else {
+                System.out.println("This lesson has already been attended or cancelled.");
+            }
+        } else {
+            System.out.println("No booking found for the specified learner and lesson. Attendance failed.");
+        }
+    }
+
 }
