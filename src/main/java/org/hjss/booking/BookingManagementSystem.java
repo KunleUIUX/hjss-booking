@@ -1,5 +1,7 @@
 package org.hjss.booking;
 
+import org.hjss.booking.report.CoachReportData;
+import org.hjss.booking.report.LearnerReportData;
 import org.hjss.util.NameGenerator;
 
 import java.util.*;
@@ -137,6 +139,12 @@ public class BookingManagementSystem {
                     break;
                 case 3:
                     attendSwimmingLesson();
+                    break;
+                case 4:
+                    generateMonthlyLearnerReport();
+                    break;
+                case 5:
+                    generateMonthlyCoachReport();
                     break;
                 case 6:
                     registerNewLearner();
@@ -410,5 +418,78 @@ public class BookingManagementSystem {
     }
 
 
+    // Generate monthly learner report
+    private void generateMonthlyLearnerReport() {
+        System.out.println("\n=== Monthly Learner Report ===");
+
+        // Create a map to store learner information
+        Map<UUID, LearnerReportData> learnerReportMap = new HashMap<>();
+
+        // Iterate through bookings to gather learner information
+        for (Booking booking : bookings) {
+            Learner learner = booking.getLearner();
+
+            // If learner is not in the report map, add them with initial data
+            learnerReportMap.computeIfAbsent(learner.getUuid(), k -> new LearnerReportData(learner.getName()));
+
+            // Update learner report data based on booking status
+            LearnerReportData learnerReportData = learnerReportMap.get(learner.getUuid());
+            switch (booking.getStatus()) {
+                case "booked":
+                    learnerReportData.incrementBookedCount();
+                    learnerReportData.addLesson(booking.getLesson());
+                    break;
+                case "cancelled":
+                    learnerReportData.incrementCancelledCount();
+                    break;
+                case "attended":
+                    learnerReportData.incrementAttendedCount();
+                    break;
+            }
+        }
+
+        // Print the report for each learner
+        for (LearnerReportData learnerReportData : learnerReportMap.values()) {
+            System.out.println("\nLearner: " + learnerReportData.getLearnerName());
+            System.out.println("Booked Lessons: " + learnerReportData.getBookedCount());
+            System.out.println("Cancelled Lessons: " + learnerReportData.getCancelledCount());
+            System.out.println("Attended Lessons: " + learnerReportData.getAttendedCount());
+            System.out.println("Detailed Lesson Information:");
+
+            // Print detailed lesson information
+            List<Lesson> bookedLessons = learnerReportData.getBookedLessons();
+            for (Lesson lesson : bookedLessons) {
+                System.out.println("- " + lesson.toString());
+            }
+        }
+    }
+
+    // Generate monthly coach report
+    private void generateMonthlyCoachReport() {
+        System.out.println("\n=== Monthly Coach Report ===");
+
+        // Create a map to store coach information
+        Map<String, CoachReportData> coachReportMap = new HashMap<>();
+
+        // Iterate through bookings to gather coach information and ratings
+        for (Booking booking : bookings) {
+            Coach coach = booking.getLesson().getCoach();
+
+            // If coach is not in the report map, add them with initial data
+            coachReportMap.computeIfAbsent(coach.getName(), k -> new CoachReportData());
+
+            // Update coach report data with the rating received
+            coachReportMap.get(coach.getName()).addRating(booking.getRating());
+        }
+
+        // Print the report for each coach
+        for (Map.Entry<String, CoachReportData> entry : coachReportMap.entrySet()) {
+            String coachName = entry.getKey();
+            CoachReportData coachReportData = entry.getValue();
+
+            System.out.println("\nCoach: " + coachName);
+            System.out.println("Average Rating: " + coachReportData.getAverageRating());
+        }
+    }
 
 }
