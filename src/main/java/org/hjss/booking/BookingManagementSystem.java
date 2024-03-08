@@ -5,6 +5,7 @@ import org.hjss.booking.report.LearnerReportData;
 import org.hjss.util.NameGenerator;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class BookingManagementSystem {
@@ -38,6 +39,51 @@ public class BookingManagementSystem {
 
         System.out.println("\nCoaches initialized successfully.");
 
+        System.out.println("\nGenerating dummy Timetable Data..");
+
+        //ensuring there are no duplicates
+        Set<String> uniqueLessons = new HashSet<>();
+
+        // Generate lessons for 4 weeks (44 lessons) following the specified schedule
+
+            String[] days = {"Monday", "Wednesday", "Friday", "Saturday"};
+
+            for (int week = 1; week <= 4; week++) {
+                for (String day : days) {
+
+                        int lessonsPerDay = (day.equals("Saturday")) ? 2 : 3;
+
+
+                        for (int i = 0; i < lessonsPerDay; i++) {
+
+                            String timeSlot = getRandomTimeSlot(day);
+
+                            Lesson lesson = new Lesson();
+                            lesson.setUuid(UUID.randomUUID());
+                            lesson.setDay(day);
+                            lesson.setTimeSlot(timeSlot);
+                            lesson.setCurrentCapacity(0);
+                            lesson.setMaxCapacity(4);
+                            lesson.setGradeLevel(generateRandomGrade());
+                            lesson.setCoach(getRandomCoach());
+                            lesson.setDateTime(LocalDateTime.now());
+
+                            // Check uniqueness before adding the lesson
+                            String lessonKey = lesson.getDay() + lesson.getTimeSlot() + lesson.getGradeLevel();
+                            if (uniqueLessons.add(lessonKey)) {
+                                addLesson(lesson);
+                                System.out.println("\n" + lessonDetailsToString(lesson));
+                            } else {
+                                // Duplicate lesson, generate a new one
+                                i--;
+                            }
+
+                            System.out.println("\n" + lessonDetailsToString(lesson));
+                        }
+                }
+        }
+        System.out.println("\nTimetable initialized successfully.");
+
 
         System.out.println("\nGenerating dummy Learners Data..");
 
@@ -54,41 +100,6 @@ public class BookingManagementSystem {
             registerNewLearner(learner);
         }
         System.out.println("\nLearners initialized successfully.");
-
-
-
-        System.out.println("\nGenerating dummy Timetable Data..");
-
-        // Generate lessons for 4 weeks (44 lessons) following the specified schedule
-
-            String[] days = {"Monday", "Wednesday", "Friday", "Saturday"};
-
-            for (int week = 1; week <= 4; week++) {
-                for (String day : days) {
-
-                        int lessonsPerDay = (day.equals("Saturday")) ? 2 : 3;
-
-                        for (int i = 0; i < lessonsPerDay; i++) {
-
-                            String timeSlot = getRandomTimeSlot(day);
-
-                            Lesson lesson = new Lesson();
-                            lesson.setUuid(UUID.randomUUID());
-                            lesson.setDay(day);
-                            lesson.setTimeSlot(timeSlot);
-                            lesson.setCurrentCapacity(0);
-                            lesson.setMaxCapacity(4);
-                            lesson.setGradeLevel(generateRandomGrade());
-                            lesson.setCoach(getRandomCoach());
-                            lesson.setDateTime(LocalDateTime.now());
-                            addLesson(lesson);
-
-                            System.out.println("\n" + lessonDetailsToString(lesson));
-                        }
-                }
-        }
-        System.out.println("\nTimetable initialized successfully.");
-
 
     }
 
@@ -156,9 +167,10 @@ public class BookingManagementSystem {
 
     public void runCommandInterface() {
 
+        Scanner scanner = new Scanner(System.in);
+
         try {
 
-            Scanner scanner = new Scanner(System.in);
             boolean exit = false;
 
             while (!exit) {
@@ -205,8 +217,14 @@ public class BookingManagementSystem {
             System.out.println("Exiting the program. Thank you!");
         }
         catch (InputMismatchException ex){
-            System.out.println(ex.getMessage());
-            return;
+            System.out.println("Invalid input. Please enter a valid input.");
+            runCommandInterface();
+        }
+        finally {
+            // Close the scanner to avoid resource leaks
+            if (scanner != null) {
+                scanner.close();
+            }
         }
         }
 
@@ -220,10 +238,29 @@ public class BookingManagementSystem {
         // Gather information about the new learner
         System.out.print("Enter learner name: ");
         String name = scanner.nextLine();
-        System.out.print("Enter learner gender: ");
-        String gender = scanner.nextLine();
-        System.out.print("Enter learner age: ");
-        int age = scanner.nextInt();
+        System.out.print("Enter learner gender: \n");
+        System.out.println("1. Male");
+        System.out.println("2. Female");
+
+        int genderChoice = scanner.nextInt();
+
+        String gender = getGenderByChoice(genderChoice);
+
+        int age = 0;
+
+        do {
+            System.out.print("Enter learner's age (between 4 and 11): ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+                scanner.next(); // Consume invalid input
+            }
+            age = scanner.nextInt();
+
+            if (age < 4 || age > 11) {
+                System.out.println("Invalid age. Please enter an age between 4 and 11.");
+            }
+        } while (age < 4 || age > 11);
+
         scanner.nextLine(); // Consume the newline character
         System.out.print("Enter emergency contact phone number: ");
         String emergencyContactNumber = scanner.nextLine();
@@ -236,10 +273,7 @@ public class BookingManagementSystem {
         // Add the new learner to the system
         registerNewLearner(newLearner);
 
-        System.out.println("New learner registered successfully!");
-
     }
-
 
         private void bookSwimmingLesson() {
         Scanner scanner = new Scanner(System.in);
@@ -249,6 +283,10 @@ public class BookingManagementSystem {
         Learner learner = findLearnerByName(learnerName);
 
         if (learner != null) {
+
+            System.out.println("----Learner Info----\n" +
+                    "Name: " + learnerName +
+                    ", Grade Level: " + learner.getGradeLevel());
 
             System.out.println("\n=== Book a Swimming Lesson ===");
 
@@ -301,6 +339,12 @@ public class BookingManagementSystem {
             Lesson lesson = getLessonById(lessonIdToBook);
 
             if (lesson != null) {
+
+                System.out.println("Learner with the name: " + learnerName
+                                + " and Grade Level: " + learner.getGradeLevel()
+                                + "\nTo Book Lesson: \n" + lessonDetailsToString(lesson)
+                + ", at \n" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                );
                 // Check if the lesson is eligible and has available space
                 if (isBookingEligible(learner, lesson) && lesson.getCurrentCapacity() < lesson.getMaxCapacity()) {
                     // Check if the learner has already booked this lesson
@@ -312,6 +356,8 @@ public class BookingManagementSystem {
                         newBooking.setLearner(learner);
                         newBooking.setLesson(lesson);
                         newBooking.setStatus("booked");
+                        newBooking.setUuid(UUID.randomUUID());
+                        newBooking.setTimestamp(LocalDateTime.now());
                         // Add the new booking to the system
                         bookings.add(newBooking);
                         // Update the current capacity of the lesson
@@ -358,7 +404,7 @@ public class BookingManagementSystem {
 
     public Lesson getLessonById(String lessonUuid) {
         for (Lesson lesson : lessons) {
-            if (lesson.getUuid().equals(lessonUuid)) {
+            if (lesson.getUuid().toString().equals(lessonUuid)) {
                 return lesson;
             }
         }
@@ -401,7 +447,7 @@ public class BookingManagementSystem {
     // Helper method to implement view by day logic
     private void viewLessonsByDay(int dayChoice) {
         // Validate the day choice
-        if (dayChoice < 1 || dayChoice > 7) {
+        if (dayChoice < 1 || dayChoice > 4) {
             System.out.println("Invalid day choice. Returning to the main menu.");
             return;
         }
@@ -416,6 +462,69 @@ public class BookingManagementSystem {
         displayLessons(getLessonsByDay(selectedDay));
 
     }
+
+    private String getDayByChoice(int dayChoice) {
+        // Validate the day choice
+        if (dayChoice < 1 || dayChoice > 4) {
+            System.out.println("Invalid day choice. Returning to the main menu.");
+            return null;
+        }
+        // Map day choices to actual day names
+        String[] daysOfWeek = {"Monday", "Wednesday", "Friday", "Saturday"};
+        String selectedDay = daysOfWeek[dayChoice - 1];
+
+        return selectedDay;
+    }
+
+    private String getGenderByChoice(int genderChoice) {
+        // Validate the day choice
+        if (genderChoice < 1 || genderChoice > 2) {
+            System.out.println("Invalid gender choice. Returning to the main menu.");
+            return null;
+        }
+        // Map day choices to actual day names
+        String[] genders = {"Male", "Female"};
+        String selectedGender = genders[genderChoice - 1];
+
+        return selectedGender;
+    }
+
+
+    private String getTimeSlotByChoice(int choice, int dayChoice) {
+        // Validate the day choice
+        if (dayChoice < 1 || dayChoice > 4) {
+            System.out.println("Invalid day choice. Returning to the main menu.");
+            return null;
+        }
+
+        String selectedSlot = null;
+
+        if (dayChoice == 4){
+
+            if (choice < 1 || choice > 2) {
+                System.out.println("Invalid Time Slot choice. Returning to the main menu.");
+                return null;
+            }
+
+            // Map time choices to actual time slots
+            String[] timeSlots = {"2-3pm", "3-4pm"};
+            selectedSlot = timeSlots[choice - 1];
+
+        }
+        else {
+            if(choice < 1 || choice > 3) {
+                System.out.println("Invalid Time Slot choice. Returning to the main menu.");
+                return null;
+            }
+
+            // Map time choices to actual time slots
+            String[] timeSlots = {"4-5pm", "5-6pm", "6-7pm"};
+            selectedSlot = timeSlots[choice - 1];
+        }
+
+        return selectedSlot;
+    }
+
 
     private List<Lesson> getLessonsByDay(String day) {
         List<Lesson> lessonsByDay = new ArrayList<>();
@@ -437,8 +546,23 @@ public class BookingManagementSystem {
             System.out.println("Day: " + lesson.getDay());
             System.out.println("Time Slot: " + lesson.getTimeSlot());
             System.out.println("Grade Level: " + lesson.getGradeLevel());
+            System.out.println("Current Capacity: " + lesson.getCurrentCapacity());
             System.out.println("Coach: " + lesson.getCoach().getName());
             System.out.println("Max Capacity: " + lesson.getMaxCapacity());
+            System.out.println("------------------------");
+        }
+    }
+
+    private void displayBookings(List<Booking> bookings) {
+        System.out.println("\n========Available Bookings for Learner=========");
+
+        for (Booking booking : bookings) {
+            System.out.println("Booking ID: " + booking.getUuid());
+            System.out.println("Day: " + booking.getLesson().getDay());
+            System.out.println("Time Slot: " + booking.getLesson().getTimeSlot());
+            System.out.println("Grade Level: " + booking.getLesson().getGradeLevel());
+            System.out.println("Current Capacity: " + booking.getLesson().getCurrentCapacity());
+            System.out.println("Coach: " + booking.getLesson().getCoach().getName());
             System.out.println("------------------------");
         }
     }
@@ -462,6 +586,15 @@ public class BookingManagementSystem {
         return null;
     }
 
+    private Booking findBookingByUid(String uuid) {
+        for (Booking booking : bookings) {
+            if (booking.getUuid().toString().equalsIgnoreCase(uuid)) {
+                return booking;
+            }
+        }
+        return null;
+    }
+
     private Lesson findLessonByDayAndTime(String day, String timeSlot) {
         for (Lesson lesson : lessons) {
             if (lesson.getDay().equalsIgnoreCase(day) && lesson.getTimeSlot().equalsIgnoreCase(timeSlot)) {
@@ -471,11 +604,35 @@ public class BookingManagementSystem {
         return null;
     }
 
+    private Lesson findLessonByDayAndTimeAndLevel(String day, String timeSlot, int level) {
+        for (Lesson lesson : lessons) {
+            if (lesson.getDay().equalsIgnoreCase(day) && lesson.getTimeSlot().equalsIgnoreCase(timeSlot)
+                    && lesson.getGradeLevel() == level ) {
+                return lesson;
+            }
+        }
+        return null;
+    }
+
+    private List<Booking> findBookedLessonByLearner(String learnerName) {
+
+        List<Booking> bookingListFound = new ArrayList<>();
+        for (Booking booking : bookings) {
+            if (booking.getLearner().getName().equalsIgnoreCase(learnerName) && booking.getStatus().equalsIgnoreCase("booked")) {
+                bookingListFound.add(booking);
+            }
+        }
+        return bookingListFound;
+    }
+
     private boolean isBookingEligible(Learner learner, Lesson lesson) {
         // Implement eligibility criteria (e.g., grade level restrictions)
         // Return true if the learner is eligible, false otherwise
-        // You can add more conditions based on your specific requirements
-        return learner.getGradeLevel() >= lesson.getGradeLevel() && learner.getGradeLevel() <= lesson.getGradeLevel() + 1;
+        int learnerGrade = learner.getGradeLevel();
+        int lessonGrade = lesson.getGradeLevel();
+
+        return learnerGrade == lessonGrade || lessonGrade == learnerGrade + 1;
+
     }
 
     /*
@@ -570,7 +727,7 @@ public class BookingManagementSystem {
 
     private Booking findBookingByLearnerAndLesson(Learner learner, Lesson lesson) {
         for (Booking booking : bookings) {
-            if (booking.getLearner().equals(learner) && booking.getLesson().equals(lesson)) {
+            if (booking.getLearner().getUuid().equals(learner.getUuid()) && booking.getLesson().getUuid().equals(lesson.getUuid())) {
                 return booking;
             }
         }
@@ -586,17 +743,91 @@ public class BookingManagementSystem {
         Learner learner = findLearnerByName(learnerName);
 
         if (learner != null) {
-            System.out.print("Enter lesson day: ");
-            String day = scanner.nextLine();
-            System.out.print("Enter lesson time slot: ");
-            String timeSlot = scanner.nextLine();
+
+            List<Booking> bookingList = findBookedLessonByLearner(learnerName);
+            displayBookings(bookingList);
+
+            System.out.print("Enter Booking Id: ");
+            String bookingId = scanner.nextLine();
+
+            Booking bookingToAttend = findBookingByUid(bookingId);
+
+            if (bookingToAttend != null) {
+
+                System.out.print("\nEnter your review: ");
+                String review = scanner.nextLine();
+                System.out.print("Enter your rating (1-5): \n1: Very dissatisfied, \n2: Dissatisfied, \n3: Ok, \n4: Satisfied, " +
+                        "\n5: " + "Very Satisfied \n");
+                int rating = scanner.nextInt();
+
+                // Mark the lesson as attended
+                bookingToAttend.setStatus("attended");
+                // Set the review and rating for the attended lesson
+                bookingToAttend.setReview(review);
+                bookingToAttend.setRating(rating);
+
+                // Check for grade level update
+                updateGradeLevelAfterAttending(learner, bookingToAttend.getLesson());
+
+                System.out.println("Lesson attended successfully. Rating: " + rating);
+
+            } else {
+                System.out.println("No booking found for the specified learner and lesson. Attendance failed.");
+            }
+
+            /*
+            System.out.print("Select lesson day: \n");
+
+            System.out.println("1. Monday");
+            System.out.println("2. Wednesday");
+            System.out.println("3. Friday");
+            System.out.println("4. Saturday");
+            System.out.print("Enter your choice (1-4): ");
+            int dayChoice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
+            String day = getDayByChoice(dayChoice);
+
+            int slotChoice = 0;
+            if (dayChoice == 4){
+                //deal with Saturday alone and return
+
+                System.out.print("Select time slot for Saturday: \n");
+                System.out.println("1. 2-3pm");
+                System.out.println("2. 3-4pm");
+
+                slotChoice = scanner.nextInt();
+                scanner.nextLine();
+
+            }
+            else {
+
+                System.out.print("Select time slot: \n");
+                System.out.println("1. 4-5pm");
+                System.out.println("2. 5-6pm");
+                System.out.println("3. 6-7pm");
+
+                slotChoice = scanner.nextInt();
+                scanner.nextLine();
+            }
+
+            String timeSlot = getTimeSlotByChoice(slotChoice, dayChoice);
+
+            //Null or empty checker in place for the values returned for day and slot
+            if (checkNullOrEmpty(day) || checkNullOrEmpty(timeSlot)){
+                return;
+            }
+
             Lesson lesson = findLessonByDayAndTime(day, timeSlot);
 
             if (lesson != null) {
-                System.out.print("Enter your review: ");
+
+                System.out.println("Lesson found : " + lessonDetailsToString(lesson));
+
+                System.out.print("\nEnter your review: ");
                 String review = scanner.nextLine();
-                System.out.print("Enter your rating (1-5): \n  (1: Very dissatisfied, \n2: Dissatisfied, \n3: Ok, \n4: Satisfied, 5:\n" +
-                        "Very Satisfied)");
+                System.out.print("Enter your rating (1-5): \n1: Very dissatisfied, \n2: Dissatisfied, \n3: Ok, \n4: Satisfied, " +
+                        "\n5: " + "Very Satisfied \n");
                 int rating = scanner.nextInt();
 
                 attendLesson(learner, lesson, review, rating);
@@ -606,6 +837,17 @@ public class BookingManagementSystem {
         } else {
             System.out.println("Learner not found for the specified name.");
         }
+
+             */
+        }
+        else {
+            System.out.println("Specified learner with Name : " + learnerName + " not found");
+            return;
+        }
+    }
+
+    private boolean checkNullOrEmpty(String ex){
+        return ex == null || ex.equalsIgnoreCase("");
     }
 
     // Function 3: Attend a swimming lesson
@@ -721,6 +963,7 @@ public class BookingManagementSystem {
         return
                 "Id: " + lesson.getUuid() +
                 ", Time: " + lesson.getTimeSlot() +
+                ", Current Capacity: " + lesson.getCurrentCapacity() +
                 ", Grade Level: " + lesson.getGradeLevel() +
                 ", Day: " + lesson.getDay() +
                 ", Coach: " + lesson.getCoach().getName();
