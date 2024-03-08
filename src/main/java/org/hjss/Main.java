@@ -10,7 +10,7 @@ public class Main {
 
         BookingManagementSystem bookingSystem = new BookingManagementSystem();
         bookingSystem.runCommandInterface();
-
+        bookingSystem.generateSampleData();
 
     }
 }

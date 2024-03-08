@@ -22,7 +22,6 @@ public class BookingManagementSystem {
         lessons = new ArrayList<>();
         bookings = new ArrayList<>();
 
-        generateSampleData();
     }
 
     public final void generateSampleData() {
@@ -112,6 +111,10 @@ public class BookingManagementSystem {
         lessons.add(lesson);
     }
 
+    public void addBooking(Booking booking) {
+        bookings.add(booking);
+    }
+
     private Coach getRandomCoach() {
         // Get a random coach from the existing coaches
         return coaches.get(new Random().nextInt(coaches.size()));
@@ -145,10 +148,10 @@ public class BookingManagementSystem {
 
                 switch (choice) {
                     case 1:
-                        bookSwimmingLesson();
+                        bookSwimmingLesson(scanner);
                         break;
                     case 2:
-                        changeCancelBooking();
+                        changeCancelBooking(scanner);
                         break;
                     case 3:
                         attendSwimmingLesson();
@@ -190,11 +193,9 @@ public class BookingManagementSystem {
 
 
     // Function 1: Booking a swimming lesson
-    private void bookSwimmingLesson() {
-        Scanner scanner = new Scanner(System.in);
+    public void bookSwimmingLesson(Scanner scanner) {
 
-        System.out.print("Enter learner name: ");
-        String learnerName = scanner.nextLine();
+        String learnerName = BookingSystemHelper.promptUserForInput(scanner, "Enter learner name: ");
         Learner learner = findLearnerByName(learnerName);
 
         if (learner != null) {
@@ -214,6 +215,9 @@ public class BookingManagementSystem {
                         + "\nTo Book Lesson: \n" + BookingSystemHelper.lessonDetailsToString(lesson)
                         + ", at \n" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
                 );
+
+                try {
+
                 // Check if the lesson is eligible and has available space
                 if (BookingSystemHelper.isBookingEligible(learner, lesson) && lesson.getCurrentCapacity() < lesson.getMaxCapacity()) {
                     // Check if the learner has already booked this lesson
@@ -230,14 +234,19 @@ public class BookingManagementSystem {
                         // Add the new booking to the system
                         bookings.add(newBooking);
                         // Update the current capacity of the lesson
-                        lesson.setCurrentCapacity(lesson.getCurrentCapacity() + 1);
+                        updateLessonCapacity(lesson, 1);
+
 
                         System.out.println("Booking successful!");
                     } else {
                         System.out.println("You have already booked this lesson. Duplicate booking is not allowed.");
                     }
-                } else {
+                }else {
                     System.out.println("The lesson is not eligible or it is already full. Booking failed.");
+                }
+                }
+                catch (Exception e){
+                    System.out.println("Error: " + e.getMessage());
                 }
             } else {
                 System.out.println("Lesson not found for the ID inputted.");
@@ -247,11 +256,15 @@ public class BookingManagementSystem {
         }
     }
 
+    private void updateLessonCapacity(Lesson lesson, int by){
+        lesson.setCurrentCapacity(lesson.getCurrentCapacity() + 1);
+    }
+
 
     // Function 2 : Change or Cancel booking for swimming lesson
-    private void changeCancelBooking() {
+    void changeCancelBooking(Scanner scanner) {
 
-        Scanner scanner = new Scanner(System.in);
+
 
         System.out.print("Enter learner name: ");
         String learnerName = scanner.nextLine();
@@ -264,6 +277,8 @@ public class BookingManagementSystem {
 
             System.out.print("Enter Booking Id: ");
             String bookingId = scanner.nextLine();
+
+            System.out.println("Booking Id: " + bookingId);
 
             Booking bookingToAttend = findBookingByUid(bookingId);
 
@@ -287,7 +302,8 @@ public class BookingManagementSystem {
 
                         System.out.println("Booking with id: " + bookingId + " cancelled successfully.");
 
-                    } else if (choice == 2) {
+                    }
+                    else if (choice == 2) {
 
 
                         // Prompt the user to select a new lesson
@@ -321,7 +337,6 @@ public class BookingManagementSystem {
                             System.out.println("New lesson not found for the specified day and time slot.");
                         }
                     } else {
-
                     }
                 }
 
@@ -577,6 +592,10 @@ public class BookingManagementSystem {
 
     }
 
+    public List<Booking> getBookings() {
+        return new ArrayList<>(bookings);
+    }
+
 
     private boolean isLearnerAlreadyRegistered(String learnerName) {
         // Check if the learner is already registered in the system
@@ -747,7 +766,7 @@ public class BookingManagementSystem {
     }
 
 
-    private Learner findLearnerByName(String learnerName) {
+    Learner findLearnerByName(String learnerName) {
         for (Learner learner : learners) {
             if (learner.getName().equalsIgnoreCase(learnerName)) {
                 return learner;
@@ -774,7 +793,7 @@ public class BookingManagementSystem {
         return null;
     }
 
-    private List<Booking> findBookedLessonByLearner(String learnerName) {
+    List<Booking> findBookedLessonByLearner(String learnerName) {
 
         List<Booking> bookingListFound = new ArrayList<>();
         for (Booking booking : bookings) {
@@ -787,7 +806,7 @@ public class BookingManagementSystem {
 
 
 
-    private Booking findBookingByLearnerAndLesson(Learner learner, Lesson lesson) {
+    Booking findBookingByLearnerAndLesson(Learner learner, Lesson lesson) {
         for (Booking booking : bookings) {
             if (booking.getLearner().getUuid().equals(learner.getUuid()) && booking.getLesson().getUuid().equals(lesson.getUuid())) {
                 return booking;

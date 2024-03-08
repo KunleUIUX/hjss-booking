@@ -8,6 +8,7 @@ import org.hjss.booking.report.LearnerReportData;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.UUID;
 
 public class BookingSystemHelper {
@@ -125,6 +126,11 @@ public class BookingSystemHelper {
     public static void displayBookings(List<Booking> bookings) {
         System.out.println("\n========Available Bookings for Learner=========");
 
+        if (bookings.isEmpty()) {
+            System.out.println("No bookings available.");
+            return;
+        }
+
         for (Booking booking : bookings) {
             System.out.println("Booking ID: " + booking.getUuid());
             System.out.println("Day: " + booking.getLesson().getDay());
@@ -217,5 +223,10 @@ public class BookingSystemHelper {
         String selectedGender = genders[genderChoice - 1];
 
         return selectedGender;
+    }
+
+    public static String promptUserForInput(Scanner scanner, String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine();
     }
 }
