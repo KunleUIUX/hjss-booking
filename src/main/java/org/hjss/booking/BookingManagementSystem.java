@@ -163,7 +163,7 @@ public class BookingManagementSystem {
                         generateMonthlyCoachReport();
                         break;
                     case 6:
-                        registerNewLearner();
+                        registerNewLearner(scanner);
                         break;
                     case 7:
                         searchLearner();
@@ -484,9 +484,8 @@ public class BookingManagementSystem {
 
 
     // Function 6: Register a New Learner
-    private void registerNewLearner() {
+    public void registerNewLearner(Scanner scanner) {
 
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("=== Register a New Learner ===");
 
@@ -593,8 +592,12 @@ public class BookingManagementSystem {
         return new ArrayList<>(bookings);
     }
 
+    public List<Learner> getLearners() {
+        return new ArrayList<>(learners);
+    }
 
-    private boolean isLearnerAlreadyRegistered(String learnerName) {
+
+    boolean isLearnerAlreadyRegistered(String learnerName) {
         // Check if the learner is already registered in the system
         for (Learner existingLearner : learners) {
             if (existingLearner.getName().equalsIgnoreCase(learnerName)) {

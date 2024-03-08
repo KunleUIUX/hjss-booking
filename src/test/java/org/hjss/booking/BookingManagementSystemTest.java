@@ -1,9 +1,11 @@
 package org.hjss.booking;
 
+import org.hjss.booking.helper.BookingSystemHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,18 +19,27 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class BookingManagementSystemTest {
 
     private BookingManagementSystem bookingSystem;
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+
+
 
     @Mock
     private Scanner scanner;
 
     @BeforeEach
     void setUp() {
+
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+
         // Initialize or instantiate your BookingManagementSystem
         bookingSystem = new BookingManagementSystem();
         // Other setup code as needed
@@ -58,6 +69,12 @@ class BookingManagementSystemTest {
         lesson.setTimeSlot("4-5pm");
 
         bookingSystem.addLesson(lesson);
+    }
+
+
+    @AfterEach
+    public void tearDown() {
+        System.setOut(System.out);
     }
 
     /*
@@ -211,5 +228,53 @@ class BookingManagementSystemTest {
         System.setIn(System.in);
     }
 
+
+    @Test
+    void testRegisterNewLearner_ValidInput() {
+        // Mock user input
+        String input = "John\n1\n10\n123-456-789\n3\n";
+        InputStream in = new ByteArrayInputStream(input.getBytes());
+        System.setIn(in);
+
+        // Call the method
+        bookingSystem.registerNewLearner(new Scanner(System.in));
+
+        // Check if the learner is registered successfully
+        assertEquals(2, bookingSystem.getLearners().size());
+        assertEquals("John", bookingSystem.getLearners().get(1).getName());
+    }
+
+
+//    @Test
+    void testRegisterNewLearnerInvalidAge() {
+        String input = "Alice\n2\n15\n987-654-321\n4\n";
+        InputStream in = new ByteArrayInputStream(input.getBytes());
+        System.setIn(in);
+
+        // Call the method
+        bookingSystem.registerNewLearner(new Scanner(System.in));
+
+        // Check if the learner is not registered due to invalid age
+        assertEquals(1, bookingSystem.getLearners().size());
+        assertTrue(outputStreamCaptor.toString().contains("Invalid learner age."));
+    }
+
+    @Test
+    void testRegisterNewLearnerAlreadyRegistered() {
+        // Prepare the system with an existing learner
+        Learner existingLearner = bookingSystem.findLearnerByName("John Doe");
+
+        // Provide input for a learner with the same name
+        String input = "John Doe\n1\n7\n123-456-789\n4\n";
+        InputStream in = new ByteArrayInputStream(input.getBytes());
+        System.setIn(in);
+
+        // Call the method
+        bookingSystem.registerNewLearner(new Scanner(System.in));
+
+        // Check if the learner is not registered due to being already registered
+        assertEquals(1, bookingSystem.getLearners().size());
+        assertTrue(outputStreamCaptor.toString().contains("This learner is already registered in the system."));
+    }
 
 }
