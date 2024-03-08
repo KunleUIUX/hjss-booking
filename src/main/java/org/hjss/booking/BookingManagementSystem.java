@@ -19,10 +19,14 @@ public class BookingManagementSystem {
         coaches = new ArrayList<>();
         lessons = new ArrayList<>();
         bookings = new ArrayList<>();
+
+        generateSampleData();
     }
 
-    public void generateSampleData() {
+    public final void generateSampleData() {
 
+        System.out.println("Initialization started..");
+        System.out.println("\nGenerating dummy Coaches Data..");
         // Generate coaches
         for (int i = 1; i <= 4; i++) {
             Coach coach = new Coach();
@@ -31,6 +35,11 @@ public class BookingManagementSystem {
             System.out.println("Coach: " + coach.getName());
             addCoach(coach);
         }
+
+        System.out.println("\nCoaches initialized successfully.");
+
+
+        System.out.println("\nGenerating dummy Learners Data..");
 
         // Generate learners
         for (int i = 1; i <= 15; i++) {
@@ -44,9 +53,14 @@ public class BookingManagementSystem {
             learner.setGradeLevel(new Random().nextInt(5) + 1); // Random grade level between 1 and 5
             registerNewLearner(learner);
         }
+        System.out.println("\nLearners initialized successfully.");
+
+
+
+        System.out.println("\nGenerating dummy Timetable Data..");
 
         // Generate lessons for 4 weeks (44 lessons) following the specified schedule
-        
+
             String[] days = {"Monday", "Wednesday", "Friday", "Saturday"};
 
             for (int week = 1; week <= 4; week++) {
@@ -68,10 +82,13 @@ public class BookingManagementSystem {
                             lesson.setCoach(getRandomCoach());
                             lesson.setDateTime(LocalDateTime.now());
                             addLesson(lesson);
-                        }
 
+                            System.out.println("\n" + lessonDetailsToString(lesson));
+                        }
                 }
         }
+        System.out.println("\nTimetable initialized successfully.");
+
 
     }
 
@@ -138,52 +155,60 @@ public class BookingManagementSystem {
     }
 
     public void runCommandInterface() {
-        Scanner scanner = new Scanner(System.in);
-        boolean exit = false;
 
-        while (!exit) {
-            System.out.println("\nMain Menu:");
-            System.out.println("1. Book a swimming lesson");
-            System.out.println("2. Change/Cancel a booking");
-            System.out.println("3. Attend a swimming lesson");
-            System.out.println("4. Monthly learner report");
-            System.out.println("5. Monthly coach report");
-            System.out.println("6. Register a new learner");
+        try {
 
-            System.out.println("7. Exit");
+            Scanner scanner = new Scanner(System.in);
+            boolean exit = false;
 
-            System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+            while (!exit) {
+                System.out.println("\nMain Menu:");
+                System.out.println("1. Book a swimming lesson");
+                System.out.println("2. Change/Cancel a booking");
+                System.out.println("3. Attend a swimming lesson");
+                System.out.println("4. Monthly learner report");
+                System.out.println("5. Monthly coach report");
+                System.out.println("6. Register a new learner");
 
-            switch (choice) {
-                case 1:
-                    bookSwimmingLesson();
-                    break;
-                case 2:
-                    changeCancelBooking();
-                    break;
-                case 3:
-                    attendSwimmingLesson();
-                    break;
-                case 4:
-                    generateMonthlyLearnerReport();
-                    break;
-                case 5:
-                    generateMonthlyCoachReport();
-                    break;
-                case 6:
-                    registerNewLearner();
-                    break;
-                case 7:
-                    exit = true;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                System.out.println("7. Exit");
+
+                System.out.print("Enter your choice: ");
+                int choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        bookSwimmingLesson();
+                        break;
+                    case 2:
+                        changeCancelBooking();
+                        break;
+                    case 3:
+                        attendSwimmingLesson();
+                        break;
+                    case 4:
+                        generateMonthlyLearnerReport();
+                        break;
+                    case 5:
+                        generateMonthlyCoachReport();
+                        break;
+                    case 6:
+                        registerNewLearner();
+                        break;
+                    case 7:
+                        exit = true;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
             }
-        }
 
-        System.out.println("Exiting the program. Thank you!");
-    }
+            System.out.println("Exiting the program. Thank you!");
+        }
+        catch (InputMismatchException ex){
+            System.out.println(ex.getMessage());
+            return;
+        }
+        }
 
 
     private void registerNewLearner() {
@@ -248,18 +273,21 @@ public class BookingManagementSystem {
                     System.out.print("Enter your choice (1-4): ");
                     int dayChoice = scanner.nextInt();
                     viewLessonsByDay(dayChoice);
+                    scanner.nextLine(); // Consume the newline character
                     break;
                 case 2:
                     //View by Grade level logic
                     System.out.print("Enter the grade level (1 to 5): ");
                     int gradeLevelChoice = scanner.nextInt();
                     viewLessonsByGrade(gradeLevelChoice);
+                    scanner.nextLine(); // Consume the newline character
                     break;
                 case 3:
                     //View by Coach level logic
                     System.out.print("Enter the coach's name: ");
                     String coachNameChoice = scanner.nextLine();
                     viewLessonsByCoach(coachNameChoice);
+                    scanner.nextLine(); // Consume the newline character
                     break;
                 default:
                     System.out.println("Invalid choice. Returning to the main menu.");
@@ -298,7 +326,7 @@ public class BookingManagementSystem {
                     System.out.println("The lesson is not eligible or it is already full. Booking failed.");
                 }
             } else {
-                System.out.println("Lesson not found for the specified day and time slot.");
+                System.out.println("Lesson not found for the ID inputted.");
             }
         } else {
             System.out.println("Learner not found for the specified name.");
@@ -690,8 +718,11 @@ public class BookingManagementSystem {
 
     // Generate detailed string representation of lesson details
     private String lessonDetailsToString(Lesson lesson) {
-        return "Time: " + lesson.getTimeSlot() +
+        return
+                "Id: " + lesson.getUuid() +
+                ", Time: " + lesson.getTimeSlot() +
                 ", Grade Level: " + lesson.getGradeLevel() +
+                ", Day: " + lesson.getDay() +
                 ", Coach: " + lesson.getCoach().getName();
     }
 

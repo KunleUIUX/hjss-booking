@@ -202,7 +202,7 @@ public class BookingManagementService {
         // Generate coaches
         for (int i = 1; i <= 4; i++) {
             Coach coach = new Coach();
-            coach.setCoachId(UUID.randomUUID().toString());
+            coach.setCoachId(UUID.randomUUID());
             coach.setName(NameGenerator.generateRandomCoachName());
             System.out.println("Coach: " + coach.getName());
             addCoach(coach);
