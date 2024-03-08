@@ -11,9 +11,13 @@ public class LearnerReportData {
         private int cancelledCount;
         private int attendedCount;
         private final List<Lesson> bookedLessons;
+        private final List<Lesson> cancelledLessons;
+        private final List<Lesson> attendedLessons;
 
         public LearnerReportData(String learnerName) {
             this.learnerName = learnerName;
+            this.cancelledLessons = new ArrayList<>();
+            this.attendedLessons = new ArrayList<>();
             this.bookedCount = 0;
             this.cancelledCount = 0;
             this.attendedCount = 0;
@@ -40,6 +44,14 @@ public class LearnerReportData {
             return bookedLessons;
         }
 
+    public List<Lesson> getAttendedLessons() {
+        return attendedLessons;
+    }
+
+    public List<Lesson> getCancelledLessons() {
+        return cancelledLessons;
+    }
+
         public void incrementBookedCount() {
             bookedCount++;
         }
@@ -55,4 +67,16 @@ public class LearnerReportData {
         public void addLesson(Lesson lesson) {
             bookedLessons.add(lesson);
         }
+
+        public void addAttendedLesson(Lesson lesson) {
+            attendedLessons.add(lesson);
+        }
+
+
+    public void addCancelledLesson(Lesson lesson) {
+        cancelledLessons.add(lesson);
     }
+
+}
+
+

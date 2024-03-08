@@ -181,8 +181,10 @@ public class BookingManagementSystem {
                 System.out.println("4. Monthly learner report");
                 System.out.println("5. Monthly coach report");
                 System.out.println("6. Register a new learner");
+                System.out.println("7. Search learner by Name");
 
-                System.out.println("7. Exit");
+
+                System.out.println("0. Exit");
 
                 System.out.print("Enter your choice: ");
                 int choice = scanner.nextInt();
@@ -206,7 +208,7 @@ public class BookingManagementSystem {
                     case 6:
                         registerNewLearner();
                         break;
-                    case 7:
+                    case 0:
                         exit = true;
                         break;
                     default:
@@ -927,9 +929,11 @@ public class BookingManagementSystem {
                     break;
                 case "cancelled":
                     learnerReportData.incrementCancelledCount();
+                    learnerReportData.addCancelledLesson(booking.getLesson());
                     break;
                 case "attended":
                     learnerReportData.incrementAttendedCount();
+                    learnerReportData.addAttendedLesson(booking.getLesson());
                     break;
             }
         }
@@ -944,13 +948,41 @@ public class BookingManagementSystem {
 
             // Print detailed lesson information
             List<Lesson> bookedLessons = learnerReportData.getBookedLessons();
+
+            System.out.println("\n---------Booked Lessons--------");
             for (Lesson lesson : bookedLessons) {
                 // Check if the lesson is in the specified month
                 if (lessonIsInMonth(lesson, monthNumber)) {
                     System.out.println("- " + lessonDetailsToString(lesson));
                 }
             }
+            System.out.println("-----Booked Lessons (end)------");
+
+            System.out.println("\n--------Cancelled Lessons------");
+
+            List<Lesson> cancelledLessons = learnerReportData.getCancelledLessons();
+            for (Lesson lesson : cancelledLessons) {
+                // Check if the lesson is in the specified month
+                if (lessonIsInMonth(lesson, monthNumber)) {
+                    System.out.println("- " + lessonDetailsToString(lesson));
+                }
+            }
+            System.out.println("\n------Cancelled Lessons (end)------");
+
+
+            System.out.println("\n--------- Attended Lessons---------");
+
+            List<Lesson> attendedLessons = learnerReportData.getAttendedLessons();
+            for (Lesson lesson : attendedLessons) {
+                // Check if the lesson is in the specified month
+                if (lessonIsInMonth(lesson, monthNumber)) {
+                    System.out.println("- " + lessonDetailsToString(lesson));
+                }
+            }
+            System.out.println("---------Attended Lessons (end)------");
+
         }
+
     }
 
     // Check if a lesson is in the specified month
@@ -986,6 +1018,7 @@ public class BookingManagementSystem {
             System.out.println("Invalid month number. Please enter a valid month number.");
             return;
         }
+
 
         // Create a map to store coach information
         Map<String, CoachReportData> coachReportMap = new HashMap<>();
