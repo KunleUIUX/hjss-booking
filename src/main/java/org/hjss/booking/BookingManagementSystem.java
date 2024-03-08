@@ -154,7 +154,7 @@ public class BookingManagementSystem {
                         changeCancelBooking(scanner);
                         break;
                     case 3:
-                        attendSwimmingLesson();
+                        attendSwimmingLesson(scanner);
                         break;
                     case 4:
                         generateMonthlyLearnerReport();
@@ -264,8 +264,6 @@ public class BookingManagementSystem {
     // Function 2 : Change or Cancel booking for swimming lesson
     void changeCancelBooking(Scanner scanner) {
 
-
-
         System.out.print("Enter learner name: ");
         String learnerName = scanner.nextLine();
         Learner learner = findLearnerByName(learnerName);
@@ -351,9 +349,8 @@ public class BookingManagementSystem {
 
 
     // Function 3: Attend a swimming lesson
-    public void attendSwimmingLesson() {
+    public void attendSwimmingLesson(Scanner scanner) {
         // Implementation for attending a swimming lesson and providing a review
-        Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter learner name: ");
         String learnerName = scanner.nextLine();

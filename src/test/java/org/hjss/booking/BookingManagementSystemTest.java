@@ -168,4 +168,48 @@ class BookingManagementSystemTest {
         System.setIn(System.in);
     }
 
+    @Test
+    void testAttendSwimmingLesson_Success() {
+        // Mock user input
+        String userInput = "John Doe\n550e8400-e29b-41d4-a716-446655440000\nThis is a review\n5\n";
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(userInput.getBytes(StandardCharsets.UTF_8));
+
+        // Mock learner
+        Learner mockLearner = bookingSystem.findLearnerByName("John Doe");
+
+        // Mock bookings
+
+        Booking mockBooking = new Booking();
+        mockBooking.setUuid(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+        mockBooking.setLearner(mockLearner);
+
+        Lesson mockLesson = bookingSystem.getLessonById("550e8400-e29b-41d4-a716-446655440000");
+
+        mockBooking.setLesson(mockLesson);
+        mockBooking.setTimestamp(LocalDateTime.now());
+        mockBooking.setStatus("booked");
+
+        bookingSystem.addBooking(mockBooking);
+
+        // Override System.in
+        System.setIn(inputStream);
+
+        // Test the method
+        bookingSystem.attendSwimmingLesson(new Scanner(System.in));
+
+        // Add assertions based on the expected behavior of the method
+        // For example, check that the booking status is updated to "attended"
+        // and that the lesson's grade level is updated if needed.
+        assertEquals("attended", mockBooking.getStatus());
+        assertEquals("This is a review", mockBooking.getReview());
+        assertEquals(5, mockBooking.getRating());
+
+        //ensuring there is an upgrade for the learner's grade Level
+        assertEquals(4, mockLearner.getGradeLevel());
+
+        // Reset System.in
+        System.setIn(System.in);
+    }
+
+
 }
