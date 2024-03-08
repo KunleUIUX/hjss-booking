@@ -46,25 +46,48 @@ public class BookingManagementSystem {
         }
 
         // Generate lessons for 4 weeks (44 lessons) following the specified schedule
-        String[] days = {"Monday", "Wednesday", "Friday", "Saturday"};
-        String[] timeSlots = {"4-5pm", "5-6pm", "6-7pm", "2-3pm", "3-4pm"};
+        
+            String[] days = {"Monday", "Wednesday", "Friday", "Saturday"};
 
-        for (int week = 1; week <= 4; week++) {
-            for (String day : days) {
-                int lessonsPerDay = (day.equals("Saturday")) ? 2 : 3;
+            for (int week = 1; week <= 4; week++) {
+                for (String day : days) {
 
-                for (int i = 0; i < lessonsPerDay; i++) {
-                    String timeSlot = timeSlots[i];
-                    Lesson lesson = new Lesson();
-                    lesson.setDay(day);
-                    lesson.setTimeSlot(timeSlot);
-                    lesson.setMaxCapacity(4);
-                    lesson.setCoach(getRandomCoach());
-                    addLesson(lesson);
+                        int lessonsPerDay = (day.equals("Saturday")) ? 2 : 3;
+
+                        for (int i = 0; i < lessonsPerDay; i++) {
+
+                            String timeSlot = getRandomTimeSlot(day);
+
+                            Lesson lesson = new Lesson();
+                            lesson.setUuid(UUID.randomUUID());
+                            lesson.setDay(day);
+                            lesson.setTimeSlot(timeSlot);
+                            lesson.setCurrentCapacity(0);
+                            lesson.setMaxCapacity(4);
+                            lesson.setGradeLevel(generateRandomGrade());
+                            lesson.setCoach(getRandomCoach());
+                            lesson.setDateTime(LocalDateTime.now());
+                            addLesson(lesson);
+                        }
+
                 }
-            }
         }
 
+    }
+
+
+    private static String getRandomTimeSlot(String day) {
+        if (day.equals("Saturday")) {
+            return (Math.random() < 0.5) ? "2-3pm" : "3-4pm";
+        } else {
+            String[] timeSlots = {"4-5pm", "5-6pm", "6-7pm"};
+            return timeSlots[(int) (Math.random() * 3)];
+        }
+    }
+
+    private static int generateRandomGrade() {
+        // For simplicity, generate a random grade level between 1 and 5
+        return (int) (Math.random() * 5) + 1;
     }
 
     public void addCoach(Coach coach) {
@@ -218,14 +241,11 @@ public class BookingManagementSystem {
                 case 1:
                     // View by day logic
                     System.out.println("Select the day:");
-                    System.out.println("1. Sunday");
-                    System.out.println("2. Monday");
-                    System.out.println("3. Tuesday");
-                    System.out.println("4. Wednesday");
-                    System.out.println("5. Thursday");
-                    System.out.println("6. Friday");
-                    System.out.println("7. Saturday");
-                    System.out.print("Enter your choice (1-7): ");
+                    System.out.println("1. Monday");
+                    System.out.println("2. Wednesday");
+                    System.out.println("3. Friday");
+                    System.out.println("4. Saturday");
+                    System.out.print("Enter your choice (1-4): ");
                     int dayChoice = scanner.nextInt();
                     viewLessonsByDay(dayChoice);
                     break;
@@ -359,7 +379,7 @@ public class BookingManagementSystem {
         }
 
         // Map day choices to actual day names
-        String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        String[] daysOfWeek = {"Monday", "Wednesday", "Friday", "Saturday"};
         String selectedDay = daysOfWeek[dayChoice - 1];
 
         System.out.println("\n=== View Lessons for " + selectedDay + " ===");
