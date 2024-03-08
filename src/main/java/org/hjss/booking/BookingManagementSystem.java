@@ -1,5 +1,6 @@
 package org.hjss.booking;
 
+import org.hjss.booking.helper.BookingSystemHelper;
 import org.hjss.booking.report.CoachReportData;
 import org.hjss.booking.report.LearnerReportData;
 import org.hjss.util.NameGenerator;
@@ -22,20 +23,6 @@ public class BookingManagementSystem {
         bookings = new ArrayList<>();
 
         generateSampleData();
-    }
-
-    private static String getRandomTimeSlot(String day) {
-        if (day.equals("Saturday")) {
-            return (Math.random() < 0.5) ? "2-3pm" : "3-4pm";
-        } else {
-            String[] timeSlots = {"4-5pm", "5-6pm", "6-7pm"};
-            return timeSlots[(int) (Math.random() * 3)];
-        }
-    }
-
-    private static int generateRandomGrade() {
-        // For simplicity, generate a random grade level between 1 and 5
-        return (int) (Math.random() * 5) + 1;
     }
 
     public final void generateSampleData() {
@@ -70,7 +57,7 @@ public class BookingManagementSystem {
 
                 for (int i = 0; i < lessonsPerDay; i++) {
 
-                    String timeSlot = getRandomTimeSlot(day);
+                    String timeSlot = BookingSystemHelper.getRandomTimeSlot(day);
 
                     Lesson lesson = new Lesson();
                     lesson.setUuid(UUID.randomUUID());
@@ -78,7 +65,7 @@ public class BookingManagementSystem {
                     lesson.setTimeSlot(timeSlot);
                     lesson.setCurrentCapacity(0);
                     lesson.setMaxCapacity(4);
-                    lesson.setGradeLevel(generateRandomGrade());
+                    lesson.setGradeLevel(BookingSystemHelper.generateRandomGrade());
                     lesson.setCoach(getRandomCoach());
                     lesson.setDateTime(LocalDateTime.now());
 
@@ -86,13 +73,13 @@ public class BookingManagementSystem {
                     String lessonKey = lesson.getDay() + lesson.getTimeSlot() + lesson.getGradeLevel();
                     if (uniqueLessons.add(lessonKey)) {
                         addLesson(lesson);
-                        System.out.println("\n" + lessonDetailsToString(lesson));
+                        System.out.println("\n" + BookingSystemHelper.lessonDetailsToString(lesson));
                     } else {
                         // Duplicate lesson, generate a new one
                         i--;
                     }
 
-                    System.out.println("\n" + lessonDetailsToString(lesson));
+                    System.out.println("\n" + BookingSystemHelper.lessonDetailsToString(lesson));
                 }
             }
         }
@@ -130,42 +117,7 @@ public class BookingManagementSystem {
         return coaches.get(new Random().nextInt(coaches.size()));
     }
 
-
-    // Function 6: Register a new learner
-    public void registerNewLearner(Learner newLearner) {
-        // Implement learner registration logic
-
-// Check if the learner meets the age requirement
-        if (isLearnerAgeValid(newLearner.getAge())) {
-            // Check if the learner is not already registered
-            if (!isLearnerAlreadyRegistered(newLearner.getName())) {
-                // Add the new learner to the system
-                learners.add(newLearner);
-                System.out.println("New learner registered successfully.");
-            } else {
-                System.out.println("This learner is already registered in the system.");
-            }
-        } else {
-            System.out.println("Invalid learner age. The learner must be between 4 and 11 years old.");
-        }
-    }
-
-    private boolean isLearnerAgeValid(int age) {
-        // Check if the learner's age is between 4 and 11 (inclusive)
-        return age >= 4 && age <= 11;
-    }
-
-
-    private boolean isLearnerAlreadyRegistered(String learnerName) {
-        // Check if the learner is already registered in the system
-        for (Learner existingLearner : learners) {
-            if (existingLearner.getName().equalsIgnoreCase(learnerName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    /*Run the command Line interface*/
     public void runCommandInterface() {
 
         Scanner scanner = new Scanner(System.in);
@@ -237,87 +189,7 @@ public class BookingManagementSystem {
     }
 
 
-    private void searchLearner() {
-
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("=== Search a Learner by Name ===\n");
-
-        System.out.println("Type the name of the learner: ");
-
-        String learnerName = scanner.nextLine();
-
-
-        // Check if the learner is already registered in the system
-        for (Learner existingLearner : learners) {
-            if (existingLearner.getName().equalsIgnoreCase(learnerName)) {
-                System.out.println(learnerDetailsToString(existingLearner));
-                return;
-            }
-        }
-
-        System.out.println("No learner found with the name: " + learnerName);
-    }
-
-    private void getAllLearners() {
-
-        System.out.println("=== Getting the List of Learners ===");
-
-        for (Learner existingLearner : learners) {
-            System.out.println(learnerDetailsToString(existingLearner));
-        }
-
-        System.out.println("\n=== successfully returned ===");
-
-
-    }
-
-    private void registerNewLearner() {
-
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("=== Register a New Learner ===");
-
-        // Gather information about the new learner
-        System.out.print("Enter learner name: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter learner gender: \n");
-        System.out.println("1. Male");
-        System.out.println("2. Female");
-
-        int genderChoice = scanner.nextInt();
-
-        String gender = getGenderByChoice(genderChoice);
-
-        int age = 0;
-
-        do {
-            System.out.print("Enter learner's age (between 4 and 11): ");
-            while (!scanner.hasNextInt()) {
-                System.out.println("Invalid input. Please enter a valid integer.");
-                scanner.next(); // Consume invalid input
-            }
-            age = scanner.nextInt();
-
-            if (age < 4 || age > 11) {
-                System.out.println("Invalid age. Please enter an age between 4 and 11.");
-            }
-        } while (age < 4 || age > 11);
-
-        scanner.nextLine(); // Consume the newline character
-        System.out.print("Enter emergency contact phone number: ");
-        String emergencyContactNumber = scanner.nextLine();
-        System.out.print("Enter learner grade level: ");
-        int gradeLevel = scanner.nextInt();
-
-        // Create a new learner with a UUID
-        Learner newLearner = new Learner(UUID.randomUUID(), name, gender, age, emergencyContactNumber, gradeLevel);
-
-        // Add the new learner to the system
-        registerNewLearner(newLearner);
-
-    }
-
+    // Function 1: Booking a swimming lesson
     private void bookSwimmingLesson() {
         Scanner scanner = new Scanner(System.in);
 
@@ -339,11 +211,11 @@ public class BookingManagementSystem {
 
                 System.out.println("Learner with the name: " + learnerName
                         + " and Grade Level: " + learner.getGradeLevel()
-                        + "\nTo Book Lesson: \n" + lessonDetailsToString(lesson)
+                        + "\nTo Book Lesson: \n" + BookingSystemHelper.lessonDetailsToString(lesson)
                         + ", at \n" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
                 );
                 // Check if the lesson is eligible and has available space
-                if (isBookingEligible(learner, lesson) && lesson.getCurrentCapacity() < lesson.getMaxCapacity()) {
+                if (BookingSystemHelper.isBookingEligible(learner, lesson) && lesson.getCurrentCapacity() < lesson.getMaxCapacity()) {
                     // Check if the learner has already booked this lesson
                     if (!isDuplicateBooking(learner, lesson)) {
 
@@ -374,6 +246,348 @@ public class BookingManagementSystem {
             System.out.println("Learner not found for the specified name.");
         }
     }
+
+
+    // Function 2 : Change or Cancel booking for swimming lesson
+    private void changeCancelBooking() {
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter learner name: ");
+        String learnerName = scanner.nextLine();
+        Learner learner = findLearnerByName(learnerName);
+
+        if (learner != null) {
+
+            List<Booking> bookingList = findBookedLessonByLearner(learnerName);
+            BookingSystemHelper.displayBookings(bookingList);
+
+            System.out.print("Enter Booking Id: ");
+            String bookingId = scanner.nextLine();
+
+            Booking bookingToAttend = findBookingByUid(bookingId);
+
+            if (bookingToAttend != null) {
+
+                Lesson oldLesson = bookingToAttend.getLesson();
+
+                if (oldLesson != null) {
+
+                    System.out.println("Do you want to Cancel or Change Lesson?\n" +
+                            "1. Cancel \n" +
+                            "2. Change");
+
+                    int choice = scanner.nextInt();
+
+                    if (choice == 1) {
+
+                        //set the booking to cancelled from booked
+                        bookingToAttend.setStatus("cancelled");
+                        oldLesson.setCurrentCapacity(oldLesson.getCurrentCapacity() - 1);
+
+                        System.out.println("Booking with id: " + bookingId + " cancelled successfully.");
+
+                    } else if (choice == 2) {
+
+
+                        // Prompt the user to select a new lesson
+                        Lesson newLesson = lessonSearch(scanner);
+
+                        if (newLesson != null) {
+                            // Check if the new lesson is eligible and has available space
+                            if (BookingSystemHelper.isBookingEligible(learner, newLesson) && newLesson.getCurrentCapacity() < newLesson.getMaxCapacity()) {
+                                // Remove the old booking
+                                bookings.remove(bookingToAttend);
+                                // Release one place from the previously booked lesson
+                                oldLesson.setCurrentCapacity(oldLesson.getCurrentCapacity() - 1);
+
+                                // Create a new booking for the new lesson
+                                Booking newBooking = new Booking();
+                                newBooking.setLearner(learner);
+                                newBooking.setUuid(UUID.randomUUID());
+                                newBooking.setLesson(newLesson);
+                                newBooking.setStatus("booked");
+                                newBooking.setTimestamp(LocalDateTime.now());
+                                // Add the new booking to the system
+                                bookings.add(newBooking);
+                                // Update the current capacity of the new lesson
+                                newLesson.setCurrentCapacity(newLesson.getCurrentCapacity() + 1);
+
+                                System.out.println("Booking change successful!");
+                            } else {
+                                System.out.println("The new lesson is not eligible or it is already full. Booking change failed.");
+                            }
+                        } else {
+                            System.out.println("New lesson not found for the specified day and time slot.");
+                        }
+                    } else {
+
+                    }
+                }
+
+            } else {
+                System.out.println("No booking found for the specified learner and old lesson. Booking change failed.");
+            }
+        } else {
+            System.out.println("Learner not found for the specified name.");
+        }
+
+    }
+
+
+    // Function 3: Attend a swimming lesson
+    public void attendSwimmingLesson() {
+        // Implementation for attending a swimming lesson and providing a review
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter learner name: ");
+        String learnerName = scanner.nextLine();
+        Learner learner = findLearnerByName(learnerName);
+
+        if (learner != null) {
+
+            List<Booking> bookingList = findBookedLessonByLearner(learnerName);
+            BookingSystemHelper.displayBookings(bookingList);
+
+            System.out.print("Enter Booking Id: ");
+            String bookingId = scanner.nextLine();
+
+            Booking bookingToAttend = findBookingByUid(bookingId);
+
+            if (bookingToAttend != null) {
+
+                System.out.print("\nEnter your review: ");
+                String review = scanner.nextLine();
+                System.out.print("Enter your rating (1-5): \n1: Very dissatisfied, \n2: Dissatisfied, \n3: Ok, \n4: Satisfied, " +
+                        "\n5: " + "Very Satisfied \n");
+                int rating = scanner.nextInt();
+
+                // Mark the lesson as attended
+                bookingToAttend.setStatus("attended");
+                // Set the review and rating for the attended lesson
+                bookingToAttend.setReview(review);
+                bookingToAttend.setRating(rating);
+
+                // Check for grade level update
+                updateGradeLevelAfterAttending(learner, bookingToAttend.getLesson());
+
+                System.out.println("Lesson attended successfully. Rating: " + rating);
+
+            } else {
+                System.out.println("No booking found for the specified learner and lesson. Attendance failed.");
+            }
+
+        } else {
+            System.out.println("Specified learner with Name : " + learnerName + " not found");
+            return;
+        }
+    }
+
+
+    // Function 4 : Generate monthly learner report for a specified month
+    private void generateMonthlyLearnerReport() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("\n=== Monthly Learner Report ===");
+
+        // Prompt user to input a month number
+        System.out.print("Enter the month number (e.g., 03 for March): ");
+        int monthNumber = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        // Validate the month number (assuming valid range is 1-12)
+        if (monthNumber < 1 || monthNumber > 12) {
+            System.out.println("Invalid month number. Please enter a valid month number.");
+            return;
+        }
+
+        // Create a map to store learner information
+        Map<UUID, LearnerReportData> learnerReportMap = new HashMap<>();
+
+        // Iterate through bookings made in the specified month
+        for (Booking booking : getBookingsInMonth(monthNumber)) {
+            Learner learner = booking.getLearner();
+
+            // If learner is not in the report map, add them with initial data
+            learnerReportMap.computeIfAbsent(learner.getUuid(), k -> new LearnerReportData(learner.getName()));
+
+            // Update learner report data based on booking status
+            LearnerReportData learnerReportData = learnerReportMap.get(learner.getUuid());
+            switch (booking.getStatus()) {
+                case "booked":
+                    learnerReportData.incrementBookedCount();
+                    learnerReportData.addLesson(booking.getLesson());
+                    break;
+                case "cancelled":
+                    learnerReportData.incrementCancelledCount();
+                    learnerReportData.addCancelledLesson(booking.getLesson());
+                    break;
+                case "attended":
+                    learnerReportData.incrementAttendedCount();
+                    learnerReportData.addAttendedLesson(booking.getLesson());
+                    break;
+            }
+        }
+
+        // Print the report for each learner
+        BookingSystemHelper.displayLearnersReport(monthNumber, learnerReportMap);
+
+    }
+
+
+    // Function 5 : Generate monthly coach report
+    private void generateMonthlyCoachReport() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("\n=== Monthly Coach Report ===");
+
+        // Prompt user to input a month number
+        System.out.print("Enter the month number (e.g., 03 for March): ");
+        int monthNumber = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        // Validate the month number (assuming valid range is 1-12)
+        if (monthNumber < 1 || monthNumber > 12) {
+            System.out.println("Invalid month number. Please enter a valid month number.");
+            return;
+        }
+
+
+        // Create a map to store coach information
+        Map<String, CoachReportData> coachReportMap = new HashMap<>();
+
+        // Iterate through bookings made in the specified month
+        for (Booking booking : getBookingsInMonth(monthNumber)) {
+            Coach coach = booking.getLesson().getCoach();
+
+            // If coach is not in the report map, add them with initial data
+            coachReportMap.computeIfAbsent(coach.getName(), k -> new CoachReportData());
+
+            // Update coach report data with the rating received
+            coachReportMap.get(coach.getName()).addRating(booking.getRating());
+        }
+
+        BookingSystemHelper.displayCoachReport(monthNumber, coachReportMap);
+    }
+
+
+    // Function 6: Register a New Learner
+    private void registerNewLearner() {
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("=== Register a New Learner ===");
+
+        // Gather information about the new learner
+        System.out.print("Enter learner name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter learner gender: \n");
+        System.out.println("1. Male");
+        System.out.println("2. Female");
+
+        int genderChoice = scanner.nextInt();
+
+        String gender = BookingSystemHelper.getGenderByChoice(genderChoice);
+
+        int age = 0;
+
+        do {
+            System.out.print("Enter learner's age (between 4 and 11): ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+                scanner.next(); // Consume invalid input
+            }
+            age = scanner.nextInt();
+
+            if (age < 4 || age > 11) {
+                System.out.println("Invalid age. Please enter an age between 4 and 11.");
+            }
+        } while (age < 4 || age > 11);
+
+        scanner.nextLine(); // Consume the newline character
+        System.out.print("Enter emergency contact phone number: ");
+        String emergencyContactNumber = scanner.nextLine();
+        System.out.print("Enter learner grade level: ");
+        int gradeLevel = scanner.nextInt();
+
+        // Create a new learner with a UUID
+        Learner newLearner = new Learner(UUID.randomUUID(), name, gender, age, emergencyContactNumber, gradeLevel);
+
+        // Add the new learner to the system
+        registerNewLearner(newLearner);
+
+    }
+
+
+    // Register a new learner
+    public void registerNewLearner(Learner newLearner) {
+        // Implement learner registration logic
+
+// Check if the learner meets the age requirement
+        if (BookingSystemHelper.isLearnerAgeValid(newLearner.getAge())) {
+            // Check if the learner is not already registered
+            if (!isLearnerAlreadyRegistered(newLearner.getName())) {
+                // Add the new learner to the system
+                learners.add(newLearner);
+                System.out.println("New learner registered successfully.");
+            } else {
+                System.out.println("This learner is already registered in the system.");
+            }
+        } else {
+            System.out.println("Invalid learner age. The learner must be between 4 and 11 years old.");
+        }
+    }
+
+
+    // Function 7 : Search learner by Name
+    private void searchLearner() {
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("=== Search a Learner by Name ===\n");
+
+        System.out.println("Type the name of the learner: ");
+
+        String learnerName = scanner.nextLine();
+
+
+        // Check if the learner is already registered in the system
+        for (Learner existingLearner : learners) {
+            if (existingLearner.getName().equalsIgnoreCase(learnerName)) {
+                System.out.println(BookingSystemHelper.learnerDetailsToString(existingLearner));
+                return;
+            }
+        }
+
+        System.out.println("No learner found with the name: " + learnerName);
+    }
+
+
+    // Function 8 : Get all Learners
+    private void getAllLearners() {
+
+        System.out.println("=== Getting the List of Learners ===");
+
+        for (Learner existingLearner : learners) {
+            System.out.println(BookingSystemHelper.learnerDetailsToString(existingLearner));
+        }
+
+        System.out.println("\n=== successfully returned ===");
+
+
+    }
+
+
+    private boolean isLearnerAlreadyRegistered(String learnerName) {
+        // Check if the learner is already registered in the system
+        for (Learner existingLearner : learners) {
+            if (existingLearner.getName().equalsIgnoreCase(learnerName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private Lesson lessonSearch(Scanner scanner) {
         // Prompt the learner to select the way to view the timetable
@@ -432,7 +646,7 @@ public class BookingManagementSystem {
         if (lessonsByCoach.isEmpty()) {
             System.out.println("No lessons available for the specified coach.");
         } else {
-            displayLessons(lessonsByCoach);
+            BookingSystemHelper.displayLessons(lessonsByCoach);
             // Add logic to proceed with booking based on the displayed lessons
         }
     }
@@ -470,7 +684,7 @@ public class BookingManagementSystem {
             System.out.println("No lessons available for the specified grade level.");
         } else {
             // Display lessons on the specified day
-            displayLessons(lessonsByGrade);
+            BookingSystemHelper.displayLessons(lessonsByGrade);
         }
     }
 
@@ -506,69 +720,8 @@ public class BookingManagementSystem {
         System.out.println("\n=== View Lessons for " + selectedDay + " ===");
 
         // Display lessons on the specified day
-        displayLessons(getLessonsByDay(selectedDay));
+        BookingSystemHelper.displayLessons(getLessonsByDay(selectedDay));
 
-    }
-
-    private String getDayByChoice(int dayChoice) {
-        // Validate the day choice
-        if (dayChoice < 1 || dayChoice > 4) {
-            System.out.println("Invalid day choice. Returning to the main menu.");
-            return null;
-        }
-        // Map day choices to actual day names
-        String[] daysOfWeek = {"Monday", "Wednesday", "Friday", "Saturday"};
-        String selectedDay = daysOfWeek[dayChoice - 1];
-
-        return selectedDay;
-    }
-
-    private String getGenderByChoice(int genderChoice) {
-        // Validate the day choice
-        if (genderChoice < 1 || genderChoice > 2) {
-            System.out.println("Invalid gender choice. Returning to the main menu.");
-            return null;
-        }
-        // Map day choices to actual day names
-        String[] genders = {"Male", "Female"};
-        String selectedGender = genders[genderChoice - 1];
-
-        return selectedGender;
-    }
-
-
-    private String getTimeSlotByChoice(int choice, int dayChoice) {
-        // Validate the day choice
-        if (dayChoice < 1 || dayChoice > 4) {
-            System.out.println("Invalid day choice. Returning to the main menu.");
-            return null;
-        }
-
-        String selectedSlot = null;
-
-        if (dayChoice == 4) {
-
-            if (choice < 1 || choice > 2) {
-                System.out.println("Invalid Time Slot choice. Returning to the main menu.");
-                return null;
-            }
-
-            // Map time choices to actual time slots
-            String[] timeSlots = {"2-3pm", "3-4pm"};
-            selectedSlot = timeSlots[choice - 1];
-
-        } else {
-            if (choice < 1 || choice > 3) {
-                System.out.println("Invalid Time Slot choice. Returning to the main menu.");
-                return null;
-            }
-
-            // Map time choices to actual time slots
-            String[] timeSlots = {"4-5pm", "5-6pm", "6-7pm"};
-            selectedSlot = timeSlots[choice - 1];
-        }
-
-        return selectedSlot;
     }
 
 
@@ -582,35 +735,6 @@ public class BookingManagementSystem {
         }
 
         return lessonsByDay;
-    }
-
-    private void displayLessons(List<Lesson> lessons) {
-        System.out.println("\nAvailable Lessons:");
-
-        for (Lesson lesson : lessons) {
-            System.out.println("Lesson ID: " + lesson.getUuid());
-            System.out.println("Day: " + lesson.getDay());
-            System.out.println("Time Slot: " + lesson.getTimeSlot());
-            System.out.println("Grade Level: " + lesson.getGradeLevel());
-            System.out.println("Current Capacity: " + lesson.getCurrentCapacity());
-            System.out.println("Coach: " + lesson.getCoach().getName());
-            System.out.println("Max Capacity: " + lesson.getMaxCapacity());
-            System.out.println("------------------------");
-        }
-    }
-
-    private void displayBookings(List<Booking> bookings) {
-        System.out.println("\n========Available Bookings for Learner=========");
-
-        for (Booking booking : bookings) {
-            System.out.println("Booking ID: " + booking.getUuid());
-            System.out.println("Day: " + booking.getLesson().getDay());
-            System.out.println("Time Slot: " + booking.getLesson().getTimeSlot());
-            System.out.println("Grade Level: " + booking.getLesson().getGradeLevel());
-            System.out.println("Current Capacity: " + booking.getLesson().getCurrentCapacity());
-            System.out.println("Coach: " + booking.getLesson().getCoach().getName());
-            System.out.println("------------------------");
-        }
     }
 
     private boolean isDuplicateBooking(Learner learner, Lesson lesson) {
@@ -650,16 +774,6 @@ public class BookingManagementSystem {
         return null;
     }
 
-    private Lesson findLessonByDayAndTimeAndLevel(String day, String timeSlot, int level) {
-        for (Lesson lesson : lessons) {
-            if (lesson.getDay().equalsIgnoreCase(day) && lesson.getTimeSlot().equalsIgnoreCase(timeSlot)
-                    && lesson.getGradeLevel() == level) {
-                return lesson;
-            }
-        }
-        return null;
-    }
-
     private List<Booking> findBookedLessonByLearner(String learnerName) {
 
         List<Booking> bookingListFound = new ArrayList<>();
@@ -671,123 +785,7 @@ public class BookingManagementSystem {
         return bookingListFound;
     }
 
-    private boolean isBookingEligible(Learner learner, Lesson lesson) {
-        // Implement eligibility criteria (e.g., grade level restrictions)
-        // Return true if the learner is eligible, false otherwise
-        int learnerGrade = learner.getGradeLevel();
-        int lessonGrade = lesson.getGradeLevel();
 
-        return learnerGrade == lessonGrade || lessonGrade == learnerGrade + 1;
-
-    }
-
-    /*
-    // Helper method to check if the learner is eligible for booking the lesson
-    private boolean isBookingEligible(Lesson lesson) {
-        // Check grade level constraint
-        if (bookedLearner.getGradeLevel() != lesson.getGradeLevel() &&
-                bookedLearner.getGradeLevel() != lesson.getGradeLevel() + 1) {
-            System.out.println("Grade level constraint not met.");
-            return false;
-        }
-
-        // Check lesson capacity constraint
-        if (lesson.getCurrentCapacity() >= lesson.getMaxCapacity()) {
-            System.out.println("Lesson is already fully booked.");
-            return false;
-        }
-
-        // Check for duplicate booking
-        if (bookedLearner.hasBookedLesson(lesson)) {
-            System.out.println("You have already booked this lesson.");
-            return false;
-        }
-
-        return true;
-    }
-
-*/
-    private void changeCancelBooking() {
-
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter learner name: ");
-        String learnerName = scanner.nextLine();
-        Learner learner = findLearnerByName(learnerName);
-
-        if (learner != null) {
-
-            List<Booking> bookingList = findBookedLessonByLearner(learnerName);
-            displayBookings(bookingList);
-
-            System.out.print("Enter Booking Id: ");
-            String bookingId = scanner.nextLine();
-
-            Booking bookingToAttend = findBookingByUid(bookingId);
-
-            if (bookingToAttend != null) {
-
-                Lesson oldLesson = bookingToAttend.getLesson();
-
-                if (oldLesson != null) {
-
-                    System.out.println("Do you want to Change or Cancel Lesson?\n" +
-                            "1. Cancel \n" +
-                            "2. Change");
-
-                    int choice = scanner.nextInt();
-
-                    if (choice == 1) {
-
-                        //set the booking to cancelled from booked
-                        bookingToAttend.setStatus("cancelled");
-
-                    } else if (choice == 2) {
-
-
-                        // Prompt the user to select a new lesson
-                        Lesson newLesson = lessonSearch(scanner);
-
-                        if (newLesson != null) {
-                            // Check if the new lesson is eligible and has available space
-                            if (isBookingEligible(learner, newLesson) && newLesson.getCurrentCapacity() < newLesson.getMaxCapacity()) {
-                                // Remove the old booking
-                                bookings.remove(bookingToAttend);
-                                // Release one place from the previously booked lesson
-                                oldLesson.setCurrentCapacity(oldLesson.getCurrentCapacity() - 1);
-
-                                // Create a new booking for the new lesson
-                                Booking newBooking = new Booking();
-                                newBooking.setLearner(learner);
-                                newBooking.setUuid(UUID.randomUUID());
-                                newBooking.setLesson(newLesson);
-                                newBooking.setStatus("booked");
-                                newBooking.setTimestamp(LocalDateTime.now());
-                                // Add the new booking to the system
-                                bookings.add(newBooking);
-                                // Update the current capacity of the new lesson
-                                newLesson.setCurrentCapacity(newLesson.getCurrentCapacity() + 1);
-
-                                System.out.println("Booking change successful!");
-                            } else {
-                                System.out.println("The new lesson is not eligible or it is already full. Booking change failed.");
-                            }
-                        } else {
-                            System.out.println("New lesson not found for the specified day and time slot.");
-                        }
-                    } else {
-
-                    }
-                }
-
-            } else {
-                System.out.println("No booking found for the specified learner and old lesson. Booking change failed.");
-            }
-        } else {
-            System.out.println("Learner not found for the specified name.");
-        }
-
-    }
 
     private Booking findBookingByLearnerAndLesson(Learner learner, Lesson lesson) {
         for (Booking booking : bookings) {
@@ -798,148 +796,8 @@ public class BookingManagementSystem {
         return null;
     }
 
-    public void attendSwimmingLesson() {
-        // Implementation for attending a swimming lesson and providing a review
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter learner name: ");
-        String learnerName = scanner.nextLine();
-        Learner learner = findLearnerByName(learnerName);
 
-        if (learner != null) {
-
-            List<Booking> bookingList = findBookedLessonByLearner(learnerName);
-            displayBookings(bookingList);
-
-            System.out.print("Enter Booking Id: ");
-            String bookingId = scanner.nextLine();
-
-            Booking bookingToAttend = findBookingByUid(bookingId);
-
-            if (bookingToAttend != null) {
-
-                System.out.print("\nEnter your review: ");
-                String review = scanner.nextLine();
-                System.out.print("Enter your rating (1-5): \n1: Very dissatisfied, \n2: Dissatisfied, \n3: Ok, \n4: Satisfied, " +
-                        "\n5: " + "Very Satisfied \n");
-                int rating = scanner.nextInt();
-
-                // Mark the lesson as attended
-                bookingToAttend.setStatus("attended");
-                // Set the review and rating for the attended lesson
-                bookingToAttend.setReview(review);
-                bookingToAttend.setRating(rating);
-
-                // Check for grade level update
-                updateGradeLevelAfterAttending(learner, bookingToAttend.getLesson());
-
-                System.out.println("Lesson attended successfully. Rating: " + rating);
-
-            } else {
-                System.out.println("No booking found for the specified learner and lesson. Attendance failed.");
-            }
-
-            /*
-            System.out.print("Select lesson day: \n");
-
-            System.out.println("1. Monday");
-            System.out.println("2. Wednesday");
-            System.out.println("3. Friday");
-            System.out.println("4. Saturday");
-            System.out.print("Enter your choice (1-4): ");
-            int dayChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline character
-
-            String day = getDayByChoice(dayChoice);
-
-            int slotChoice = 0;
-            if (dayChoice == 4){
-                //deal with Saturday alone and return
-
-                System.out.print("Select time slot for Saturday: \n");
-                System.out.println("1. 2-3pm");
-                System.out.println("2. 3-4pm");
-
-                slotChoice = scanner.nextInt();
-                scanner.nextLine();
-
-            }
-            else {
-
-                System.out.print("Select time slot: \n");
-                System.out.println("1. 4-5pm");
-                System.out.println("2. 5-6pm");
-                System.out.println("3. 6-7pm");
-
-                slotChoice = scanner.nextInt();
-                scanner.nextLine();
-            }
-
-            String timeSlot = getTimeSlotByChoice(slotChoice, dayChoice);
-
-            //Null or empty checker in place for the values returned for day and slot
-            if (checkNullOrEmpty(day) || checkNullOrEmpty(timeSlot)){
-                return;
-            }
-
-            Lesson lesson = findLessonByDayAndTime(day, timeSlot);
-
-            if (lesson != null) {
-
-                System.out.println("Lesson found : " + lessonDetailsToString(lesson));
-
-                System.out.print("\nEnter your review: ");
-                String review = scanner.nextLine();
-                System.out.print("Enter your rating (1-5): \n1: Very dissatisfied, \n2: Dissatisfied, \n3: Ok, \n4: Satisfied, " +
-                        "\n5: " + "Very Satisfied \n");
-                int rating = scanner.nextInt();
-
-                attendLesson(learner, lesson, review, rating);
-            } else {
-                System.out.println("Lesson not found for the specified day and time slot.");
-            }
-        } else {
-            System.out.println("Learner not found for the specified name.");
-        }
-
-             */
-        } else {
-            System.out.println("Specified learner with Name : " + learnerName + " not found");
-            return;
-        }
-    }
-
-    private boolean checkNullOrEmpty(String ex) {
-        return ex == null || ex.equalsIgnoreCase("");
-    }
-
-    // Function 3: Attend a swimming lesson
-    public void attendLesson(Learner learner, Lesson lesson, String review, int rating) {
-        // Implement attending lesson logic
-
-        // Find the booking associated with the learner and lesson
-        Booking bookingToAttend = findBookingByLearnerAndLesson(learner, lesson);
-
-        if (bookingToAttend != null) {
-            // Check the status of the booking
-            if ("booked".equals(bookingToAttend.getStatus())) {
-                // Mark the lesson as attended
-                bookingToAttend.setStatus("attended");
-                // Set the review and rating for the attended lesson
-                bookingToAttend.setReview(review);
-                bookingToAttend.setRating(rating);
-
-                // Check for grade level update
-                updateGradeLevelAfterAttending(learner, lesson);
-
-                System.out.println("Lesson attended successfully. Rating: " + rating);
-            } else {
-                System.out.println("This lesson has already been attended or cancelled.");
-            }
-        } else {
-            System.out.println("No booking found for the specified learner and lesson. Attendance failed.");
-        }
-    }
 
     private void updateGradeLevelAfterAttending(Learner learner, Lesson lesson) {
         // Check if the learner's grade level is lower than the lesson's grade level
@@ -954,167 +812,7 @@ public class BookingManagementSystem {
     }
 
 
-    // Generate monthly learner report for a specified month
-    private void generateMonthlyLearnerReport() {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("\n=== Monthly Learner Report ===");
-
-        // Prompt user to input a month number
-        System.out.print("Enter the month number (e.g., 03 for March): ");
-        int monthNumber = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
-
-        // Validate the month number (assuming valid range is 1-12)
-        if (monthNumber < 1 || monthNumber > 12) {
-            System.out.println("Invalid month number. Please enter a valid month number.");
-            return;
-        }
-
-        // Create a map to store learner information
-        Map<UUID, LearnerReportData> learnerReportMap = new HashMap<>();
-
-        // Iterate through bookings made in the specified month
-        for (Booking booking : getBookingsInMonth(monthNumber)) {
-            Learner learner = booking.getLearner();
-
-            // If learner is not in the report map, add them with initial data
-            learnerReportMap.computeIfAbsent(learner.getUuid(), k -> new LearnerReportData(learner.getName()));
-
-            // Update learner report data based on booking status
-            LearnerReportData learnerReportData = learnerReportMap.get(learner.getUuid());
-            switch (booking.getStatus()) {
-                case "booked":
-                    learnerReportData.incrementBookedCount();
-                    learnerReportData.addLesson(booking.getLesson());
-                    break;
-                case "cancelled":
-                    learnerReportData.incrementCancelledCount();
-                    learnerReportData.addCancelledLesson(booking.getLesson());
-                    break;
-                case "attended":
-                    learnerReportData.incrementAttendedCount();
-                    learnerReportData.addAttendedLesson(booking.getLesson());
-                    break;
-            }
-        }
-
-        // Print the report for each learner
-        for (LearnerReportData learnerReportData : learnerReportMap.values()) {
-            System.out.println("\nLearner: " + learnerReportData.getLearnerName());
-            System.out.println("Booked Lessons: " + learnerReportData.getBookedCount());
-            System.out.println("Cancelled Lessons: " + learnerReportData.getCancelledCount());
-            System.out.println("Attended Lessons: " + learnerReportData.getAttendedCount());
-            System.out.println("Detailed Lesson Information for the month " + monthNumber + ":");
-
-            // Print detailed lesson information
-            List<Lesson> bookedLessons = learnerReportData.getBookedLessons();
-
-            System.out.println("\n---------Booked Lessons--------");
-            for (Lesson lesson : bookedLessons) {
-                // Check if the lesson is in the specified month
-                if (lessonIsInMonth(lesson, monthNumber)) {
-                    System.out.println("- " + lessonDetailsToString(lesson));
-                }
-            }
-            System.out.println("-----Booked Lessons (end)------");
-
-            System.out.println("\n--------Cancelled Lessons------");
-
-            List<Lesson> cancelledLessons = learnerReportData.getCancelledLessons();
-            for (Lesson lesson : cancelledLessons) {
-                // Check if the lesson is in the specified month
-                if (lessonIsInMonth(lesson, monthNumber)) {
-                    System.out.println("- " + lessonDetailsToString(lesson));
-                }
-            }
-            System.out.println("\n------Cancelled Lessons (end)------");
-
-
-            System.out.println("\n--------- Attended Lessons---------");
-
-            List<Lesson> attendedLessons = learnerReportData.getAttendedLessons();
-            for (Lesson lesson : attendedLessons) {
-                // Check if the lesson is in the specified month
-                if (lessonIsInMonth(lesson, monthNumber)) {
-                    System.out.println("- " + lessonDetailsToString(lesson));
-                }
-            }
-            System.out.println("---------Attended Lessons (end)------");
-
-        }
-
-    }
-
-    // Check if a lesson is in the specified month
-    private boolean lessonIsInMonth(Lesson lesson, int monthNumber) {
-        return lesson.getDateTime().getMonthValue() == monthNumber;
-    }
-
-    // Generate detailed string representation of lesson details
-    private String lessonDetailsToString(Lesson lesson) {
-        return
-                "Id: " + lesson.getUuid() +
-                        ", Time: " + lesson.getTimeSlot() +
-                        ", Current Capacity: " + lesson.getCurrentCapacity() +
-                        ", Grade Level: " + lesson.getGradeLevel() +
-                        ", Day: " + lesson.getDay() +
-                        ", Coach: " + lesson.getCoach().getName();
-    }
-
-    // Generate detailed string representation of lesson details
-    private String learnerDetailsToString(Learner learner) {
-        return
-                "Id: " + learner.getUuid() +
-                        ", Name: " + learner.getName() +
-                        ", Gender: " + learner.getGender() +
-                        ", Age: " + learner.getAge() +
-                        ", Emergency Contact: " + learner.getEmergencyContact() +
-                        ", Grade Level: " + learner.getGradeLevel();
-    }
-
-
-    // Generate monthly coach report
-    private void generateMonthlyCoachReport() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("\n=== Monthly Coach Report ===");
-
-        // Prompt user to input a month number
-        System.out.print("Enter the month number (e.g., 03 for March): ");
-        int monthNumber = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
-
-        // Validate the month number (assuming valid range is 1-12)
-        if (monthNumber < 1 || monthNumber > 12) {
-            System.out.println("Invalid month number. Please enter a valid month number.");
-            return;
-        }
-
-
-        // Create a map to store coach information
-        Map<String, CoachReportData> coachReportMap = new HashMap<>();
-
-        // Iterate through bookings made in the specified month
-        for (Booking booking : getBookingsInMonth(monthNumber)) {
-            Coach coach = booking.getLesson().getCoach();
-
-            // If coach is not in the report map, add them with initial data
-            coachReportMap.computeIfAbsent(coach.getName(), k -> new CoachReportData());
-
-            // Update coach report data with the rating received
-            coachReportMap.get(coach.getName()).addRating(booking.getRating());
-        }
-
-        // Print the report for each coach
-        for (Map.Entry<String, CoachReportData> entry : coachReportMap.entrySet()) {
-            String coachName = entry.getKey();
-            CoachReportData coachReportData = entry.getValue();
-
-            System.out.println("\nCoach: " + coachName);
-            System.out.println("Average Rating for the month " + monthNumber + ": " + coachReportData.getAverageRating());
-        }
-    }
 
     // Get bookings made in the specified month
     private List<Booking> getBookingsInMonth(int monthNumber) {
