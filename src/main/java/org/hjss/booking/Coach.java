@@ -5,8 +5,6 @@ import java.util.UUID;
 public class Coach {
 
     private String name;
-
-
     private UUID coachId;
 
     public Coach(String name, UUID coachId) {
@@ -16,7 +14,6 @@ public class Coach {
 
     public Coach() {
     }
-
     public String getName() {
         return name;
     }
