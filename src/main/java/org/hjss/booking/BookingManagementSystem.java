@@ -24,7 +24,7 @@ public class BookingManagementSystem {
 
     }
 
-    public final void generateSampleData() {
+    public void generateSampleData() {
 
         System.out.println("Initialization started..");
         System.out.println("\nGenerating dummy Coaches Data..");
@@ -92,12 +92,12 @@ public class BookingManagementSystem {
             Learner learner = new Learner();
             learner.setUuid(UUID.randomUUID());
             learner.setName(NameGenerator.generateRandomLearnerName());
-            System.out.println("Learner: " + learner.getName());
             learner.setGender((i % 2 == 0) ? "Male" : "Female");
             learner.setAge(new Random().nextInt(8) + 4); // Random age between 4 and 11
             learner.setEmergencyContact("123-456-789" + i);
             learner.setGradeLevel(new Random().nextInt(5) + 1); // Random grade level between 1 and 5
             registerNewLearner(learner);
+            System.out.println("Learner: " + learner.getName() + "\nGrade Level: " + learner.getGradeLevel() + "\n");
         }
         System.out.println("\nLearners initialized successfully.");
 
@@ -145,6 +145,7 @@ public class BookingManagementSystem {
 
                 System.out.print("Enter your choice: ");
                 int choice = scanner.nextInt();
+                scanner.nextLine();
 
                 switch (choice) {
                     case 1:
@@ -157,16 +158,16 @@ public class BookingManagementSystem {
                         attendSwimmingLesson(scanner);
                         break;
                     case 4:
-                        generateMonthlyLearnerReport();
+                        generateMonthlyLearnerReport(scanner);
                         break;
                     case 5:
-                        generateMonthlyCoachReport();
+                        generateMonthlyCoachReport(scanner);
                         break;
                     case 6:
                         registerNewLearner(scanner);
                         break;
                     case 7:
-                        searchLearner();
+                        searchLearner(scanner);
                         break;
                     case 8:
                         getAllLearners();
@@ -218,32 +219,32 @@ public class BookingManagementSystem {
 
                 try {
 
-                // Check if the lesson is eligible and has available space
-                if (BookingSystemHelper.isBookingEligible(learner, lesson) && lesson.getCurrentCapacity() < lesson.getMaxCapacity()) {
-                    // Check if the learner has already booked this lesson
-                    if (!isDuplicateBooking(learner, lesson)) {
+                    // Check if the lesson is eligible and has available space
+                    if (BookingSystemHelper.isBookingEligible(learner, lesson) && lesson.getCurrentCapacity() < lesson.getMaxCapacity()) {
+                        // Check if the learner has already booked this lesson
+                        if (!isDuplicateBooking(learner, lesson)) {
 
-                        // Create a new booking
+                            // Create a new booking
 
-                        Booking newBooking = new Booking();
-                        newBooking.setLearner(learner);
-                        newBooking.setLesson(lesson);
-                        newBooking.setStatus("booked");
-                        newBooking.setUuid(UUID.randomUUID());
-                        newBooking.setTimestamp(LocalDateTime.now());
-                        // Add the new booking to the system
-                        bookings.add(newBooking);
-                        // Update the current capacity of the lesson
-                        updateLessonCapacity(lesson, 1);
+                            Booking newBooking = new Booking();
+                            newBooking.setLearner(learner);
+                            newBooking.setLesson(lesson);
+                            newBooking.setStatus("booked");
+                            newBooking.setUuid(UUID.randomUUID());
+                            newBooking.setTimestamp(LocalDateTime.now());
+                            // Add the new booking to the system
+                            bookings.add(newBooking);
+                            // Update the current capacity of the lesson
+                            updateLessonCapacity(lesson, 1);
 
 
-                        System.out.println("Booking successful!");
-                    } else {
-                        System.out.println("You have already booked this lesson. Duplicate booking is not allowed.");
+                            System.out.println("Booking successful!");
+                        } else {
+                            System.out.println("You have already booked this lesson. Duplicate booking is not allowed.");
+                        }
+                    }else {
+                        System.out.println("The lesson is not eligible or it is already full. Booking failed.");
                     }
-                }else {
-                    System.out.println("The lesson is not eligible or it is already full. Booking failed.");
-                }
                 }
                 catch (Exception e){
                     System.out.println("Error: " + e.getMessage());
@@ -397,8 +398,7 @@ public class BookingManagementSystem {
 
 
     // Function 4 : Generate monthly learner report for a specified month
-    private void generateMonthlyLearnerReport() {
-        Scanner scanner = new Scanner(System.in);
+    private void generateMonthlyLearnerReport(Scanner scanner) {
 
         System.out.println("\n=== Monthly Learner Report ===");
 
@@ -448,8 +448,7 @@ public class BookingManagementSystem {
 
 
     // Function 5 : Generate monthly coach report
-    private void generateMonthlyCoachReport() {
-        Scanner scanner = new Scanner(System.in);
+    private void generateMonthlyCoachReport(Scanner scanner) {
 
         System.out.println("\n=== Monthly Coach Report ===");
 
@@ -551,9 +550,7 @@ public class BookingManagementSystem {
 
 
     // Function 7 : Search learner by Name
-    private void searchLearner() {
-
-        Scanner scanner = new Scanner(System.in);
+    private void searchLearner(Scanner scanner) {
 
         System.out.println("=== Search a Learner by Name ===\n");
 

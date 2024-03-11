@@ -245,7 +245,7 @@ class BookingManagementSystemTest {
     }
 
 
-//    @Test
+    //    @Test
     void testRegisterNewLearnerInvalidAge() {
         String input = "Alice\n2\n15\n987-654-321\n4\n";
         InputStream in = new ByteArrayInputStream(input.getBytes());

@@ -14,6 +14,7 @@ public class Booking {
     private String bookingId;
     private LocalDateTime timestamp;
 
+
     public Booking(UUID uuid, Learner learner, Lesson lesson, String status, String review, String bookingId, int rating) {
         this.uuid = uuid;
         this.learner = learner;

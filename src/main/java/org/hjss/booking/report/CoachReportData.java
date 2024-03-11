@@ -1,6 +1,7 @@
 package org.hjss.booking.report;
 
 public class CoachReportData {
+
     private int totalRatings;
     private int ratingCount;
 
@@ -16,5 +17,22 @@ public class CoachReportData {
     public void addRating(int rating) {
         totalRatings += rating;
         ratingCount++;
+    }
+
+
+    public int getTotalRatings() {
+        return totalRatings;
+    }
+
+    public void setTotalRatings(int totalRatings) {
+        this.totalRatings = totalRatings;
+    }
+
+    public int getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(int ratingCount) {
+        this.ratingCount = ratingCount;
     }
 }

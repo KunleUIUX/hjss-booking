@@ -9,8 +9,8 @@ public class Main {
     public static void main(String[] args) {
 
         BookingManagementSystem bookingSystem = new BookingManagementSystem();
-        bookingSystem.runCommandInterface();
         bookingSystem.generateSampleData();
+        bookingSystem.runCommandInterface();
 
     }
 }
